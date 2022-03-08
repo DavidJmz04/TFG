@@ -1,0 +1,88 @@
+:root {
+    --primary: #485B73;
+    --secondary: #D5E5F2;
+    --tertiary: #7E9ABF;
+}
+
+/* ------------
+HEADER
+---------------*/
+
+.navbar{
+    background-color: var(--primary);
+}
+
+.logo{
+    height: 70px;
+    margin-right: 6rem;
+}
+
+.nav-link{
+    color: var(--secondary) !important;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.nav-link:hover{
+    color: #222F40 !important;
+    background-color: #A3BAD9;
+}
+
+.input-group{
+    border: 1px solid var(--tertiary);
+}
+
+.form-control{
+    width: 12vw !important;
+    background-color: var(--secondary);
+    border: none;
+}
+
+.form-control:focus{
+    background-color: var(--secondary);
+    color: var(--primary);
+    outline: none;
+    box-shadow: none;
+}
+
+input[type="search"]::-webkit-search-decoration, input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webkit-search-results-button, input[type="search"]::-webkit-search-results-decoration {
+     display: none;
+}
+
+#search{
+    background-color: var(--secondary);
+    color: var(--primary);
+    border: none;
+}
+
+.fa-user{
+    color: var(--secondary);
+    font-size: 40px;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+.fa-bars{
+    color: var(--secondary);
+    font-size: 40px;
+}
+
+#bdNavbar{
+    background-color: var(--primary);
+}
+
+@media (max-width: 1080px) {
+    .logo {
+        margin-right: 1rem;
+    }
+    .navbar{
+        height: 88px;
+    }
+
+    .nav-link{
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+}
