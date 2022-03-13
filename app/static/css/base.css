@@ -12,11 +12,13 @@ HEADER
     background-color: var(--primary);
 }
 
+/* LOGO */
 .logo{
     height: 70px;
     margin-right: 6rem;
 }
 
+/* NAVBAR ITEM */
 .nav-link{
     color: var(--secondary) !important;
     padding-top: 2rem;
@@ -28,12 +30,16 @@ HEADER
     background-color: #A3BAD9;
 }
 
+.selected{
+    background-color: var(--tertiary);
+}
+
+/* SEARCH */
 .input-group{
     border: 1px solid var(--tertiary);
 }
 
 .form-control{
-    width: 12vw !important;
     background-color: var(--secondary);
     border: none;
 }
@@ -43,6 +49,10 @@ HEADER
     color: var(--primary);
     outline: none;
     box-shadow: none;
+}
+
+.search{
+    width: 12vw !important;
 }
 
 input[type="search"]::-webkit-search-decoration, input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webkit-search-results-button, input[type="search"]::-webkit-search-results-decoration {
@@ -55,11 +65,13 @@ input[type="search"]::-webkit-search-decoration, input[type="search"]::-webkit-s
     border: none;
 }
 
+/* PROFILE */
 .fa-user{
     color: var(--secondary);
     font-size: 40px;
 }
 
+/* HAMBURGUER */
 .navbar-toggler:focus {
     box-shadow: none;
 }
@@ -69,20 +81,25 @@ input[type="search"]::-webkit-search-decoration, input[type="search"]::-webkit-s
     font-size: 40px;
 }
 
+/* HIDE MENU */
 #bdNavbar{
     background-color: var(--primary);
 }
 
+/* MEDIAS */
 @media (max-width: 1080px) {
     .logo {
         margin-right: 1rem;
     }
-    .navbar{
-        height: 88px;
-    }
+}
 
+@media (max-width: 991px) {
     .nav-link{
         padding-top: 1rem;
         padding-bottom: 1rem;
+    }
+
+    .navbar-toggler{
+        height: 88px;
     }
 }
