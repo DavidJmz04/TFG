@@ -1,42 +1,10 @@
+/* CONTAINER IMAGE */
 #image{
     cursor: pointer;
-    width: 420px;
-    height: 478px;
     background-color: #F6F6F6;
 }
 
-.carousel-item{
-    width: 350px;
-    height: 400px;
-    margin-left: 35px;
-}
-
-.carousel-item img {
-    position: absolute;
-    top: 50%;
-    transform: translate(0, -50%);
-}
-
-.carousel-indicators{
-    margin-bottom: -30px;
-}
-
-.carousel-indicators [data-bs-target] {
-    background-color: var(--primary);
-}
-
-.carousel-control-prev, .carousel-control-next{
-    width: 9%;
-}
-
-.carousel-control-prev-icon {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23485B73'%3e%3cpath d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e");
-}
-
-.carousel-control-next-icon {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23485B73'%3e%3cpath d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
-}
-
+/* ELEMENTS IMAGE */
 .fa-plus{
     color: var(--primary);
     cursor: pointer;
@@ -49,25 +17,30 @@
     margin-right: 35px;
 }
 
+/* DELETE POINTER */
 .no-pointer{
     cursor: default !important;
     background-color: transparent !important;
 }
 
-/* MEDIAS */
-@media (max-width: 540px) {
-    #image{
-        width: 100%;
-        height: 330px;
-    }
+/* BUTTON */
+.btn-primary{
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: var(--secondary);
+    border-radius: 0.5rem;
+    padding: 0.375em 1.5rem;;
+}
 
-    .carousel-item{
-        width: 84%;
-        height: 270px;
-        margin-left: 8%;
-    }
+.btn-primary:hover{
+    color: #222F40 !important;
+    background-color: #A3BAD9 !important;
+    border-color: #A3BAD9 !important;
+}
 
-    .carousel-indicators{
-        margin-bottom: -30px;
-    }
+.btn-primary:focus, .btn-primary:active{
+    box-shadow: none !important;
+    color: var(--secondary) !important;
+    border-color: var(--tertiary) !important;
+    background-color: var(--tertiary) !important;
 }

@@ -17,7 +17,7 @@
                 
                 <i class="fas fa-plus m-auto display-1"></i>
                 <i class="fas fa-trash d-none h1" onclick="deleteImage()"></i>
-                <input type="file" accept="image/*" multiple="multiple" id="upload" name="images" class="d-none" onchange="settings()" required>
+                <input type="file" accept="image/*" multiple="multiple" id="upload" name="images" class="visually-hidden" onchange="settings()" required>
 
                 <div id="carousel" class="carousel slide" data-bs-interval="false" >
                     
@@ -44,16 +44,35 @@
       
                 <div class="form-group mb-3">
                       <label for="description">Description</label>
-                      <textarea class="form-control mt-1" id="description" name="description" rows="6" required></textarea>
-                    </div>
+                      <textarea class="form-control mt-1" id="description" name="description" rows="2" required></textarea>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="origin">Country</label>
+                    <select class="form-control form-select mt-1" id="origin" name="origin" required>
+                        <option value="indifferent">Indifferent</option>
+                        <option value="spain">Spain</option>
+                    </select>
+                </div>
       
                 <div class="form-group mb-3">
                     <label for="type">Type</label>
-                    <select class="form-control form-select mt-1" id="type" name="type" required>
+                    <select class="form-control form-select mt-1" id="type" name="type" onchange="show(this.value)" required>
                         <option value="clock">Clock auctions</option>
                         <option value="dutch">Dutch auctions</option>
                         <option value="sealed">Sealed bid auctions</option>
                     </select>
+                </div>
+
+                <div class="form-group mb-3 d-flex">
+                    <div class="w-100">
+                        <label for="initial_bid">Floor price</label>
+                        <input type="number" min="0" class="form-control" id="initial_bid" name="initial_bid" required>
+                    </div>
+                    <div class="d-none w-100 ms-2"id="show">
+                        <label for="final_bid">Minimum price</label>
+                        <input type="number" min="0" class="form-control" id="final_bid" name="final_bid">
+                    </div>
                 </div>
       
                 <div class="form-group mb-3">

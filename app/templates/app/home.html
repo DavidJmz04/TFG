@@ -1,7 +1,65 @@
 {% extends 'app/base.html' %}
+{% load static %}
+
+{% block css %}
+
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+
+{% endblock %}
 
 {% block content %}
 
-    <h2>Home</h2>
+    <main class="p-5"> 
+        
+        <div>
+            <h2>Clock auctions</h2>
+            <div class="row">
+                {% for product in clock_products %}
+
+                    <a href="{% url 'product' product.id %}" class="col-1">
+                        <figure>
+                            <img class="d-block w-100" src="{{ product.picture_set.first.image.url }}">
+                        </figure>
+                    </a>
+                {% endfor %}
+                <a href="{% url 'section' 'clock'%}" class="col-1 my-auto">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h2>Dutch auctions</h2>
+            <div class="row">
+                {% for product in dutch_products %}
+                    <a href="{% url 'product' product.id %}" class="col-1">
+                        <figure>
+                            <img class="d-block w-100" src="{{ product.picture_set.first.image.url }}">
+                        </figure>
+                    </a>
+                {% endfor %}
+                <a href="{% url 'section' 'dutch'%}" class="col-1 my-auto">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>            
+        </div>
+
+        <div class="mt-4">
+            <h2>Sealed products auctions</h2>
+            <div class="row">
+                {% for product in sealed_products %}
+                    <a href="{% url 'product' product.id %}" class="col-1">
+                        <figure>
+                            <img class="d-block w-100" src="{{ product.picture_set.first.image.url }}">
+                        </figure>
+                    </a>
+                {% endfor %}
+                <a href="{% url 'section' 'sealed'%}" class="col-1 my-auto">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>            
+        </div>
+
+    </main>
     
 {% endblock %}

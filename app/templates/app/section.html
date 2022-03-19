@@ -1,11 +1,43 @@
 {% extends 'app/base.html' %}
 
-{% block content %}
+{% load static %}
 
-    {% for product in products %}
-    <div>
-        <p> {{ product.title }}</p>
-    </div>
-    {% endfor %}
+{% block css %}
+
+    <link rel="stylesheet" href="{% static 'css/section.css' %}">
+
+{% endblock %}
+
+{% block content %}
+    <main class="p-5">        
+
+        <div class="row row-cols-5">
+            {% for product in products %}
+                <a href="{% url 'product' product.id %}">
+                    <figure class="col">
+                        <img class="d-block w-100" src="{{ product.picture_set.first.image.url }}">
+                        <h2>{{ product.title }}</h2>
+                        <h6 class="d-none finished_date">{{product.finished_date|date:"M d, Y H:i" }}</h6>
+                        {% if product.type == 'dutch' %}
+                            <h6 class="d-none created_date">{{product.created_date|date:"M d, Y H:i:s" }}</h6>
+                            <h6 class="d-none initial_bid">{{product.initial_bid }}</h6>
+                            <h6 class="d-none final_bid">{{product.final_bid }}</h6>
+                            <h5 class="countdown"></h5>
+                        {% else %}
+                            <h5>Current bid: {% if product.bid_set.count == 0 %}{{product.initial_bid}}{% else %}{{product.bid_set.last.price}}{% endif %}€</h5>
+                            <h6 class="countdown"></h6>
+                        {% endif %}
+                    </figure>
+                </a>
+            {% endfor %}
+        </div>
+    </main>
     
+    
+{% endblock %}
+
+{% block js %}
+
+    <script src="{% static 'js/section.js' %}"></script>
+
 {% endblock %}

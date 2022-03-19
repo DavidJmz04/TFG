@@ -2,33 +2,90 @@
 {% load static %}
 
 {% block content %}
+    <main class="p-5">
+        <div class="d-md-flex justify-content-center">
+            <div id="image" class="mx-auto mx-md-0 me-md-4">
+                <div id="carousel" class="carousel slide" data-bs-interval="false" >
+                    <div class="carousel-indicators">
+                        {%for picture in product.picture_set.all %}
+                            {% if product.picture_set.count != 1 %}<button type="button" data-bs-target="#carousel" data-bs-slide-to="{{forloop.counter0}}" {% if forloop.counter0 == 0 %} class="active" aria-current="true" {% endif %} aria-label="Slide {{forloop.counter0|add:"1"}}"></button> {% endif %}
+                        {%endfor%}
+                    </div>
+
+                    <div class="carousel-inner">
+                        {%for picture in product.picture_set.all %}
+                            <div class="carousel-item {% if forloop.counter0 == 0 %}active{% endif %}">
+                                <img src="{{picture.image.url}}" class="d-block w-100">
+                            </div>
+                        {%endfor%}
+                    </div>
+
+                    {% if product.picture_set.count != 1 %}
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+
+                        <button class="carousel-control-next" type="button" data-bs-target="#carousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div>
+                <h2>{{product.title}}</h2>
+                <p>{{product.description}}</p>
     
-<div id="carousel" class="carousel slide" data-bs-interval="false" >
-    <div class="carousel-indicators">
-        <button type="button" data-bs-target="#carousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-        <button type="button" data-bs-target="#carousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
-    </div>
+                <h6 class="d-none finished_date">{{product.finished_date|date:"M d, Y H:i:s" }}</h6>
+                <h6 class="countdown"></h6>
 
-    <div class="carousel-inner">
-        
-        <div class="carousel-item active">
-            <img src="{% static 'media/Logo.png' %}" class="d-block w-100" alt="...">
+                {% if product.type == 'dutch' %}
+                    <h6 class="d-none created_date">{{product.created_date|date:"M d, Y H:i:s" }}</h6>
+                    <h6 class="d-none initial_bid">{{product.initial_bid }}</h6>
+                    <h6 class="d-none final_bid">{{product.final_bid }}</h6>             
+                {% endif %}
+
+                {% if product.type == 'clock' %}
+                    <h5>Current bid: {% if product.bid_set.count == 0 %}{{product.initial_bid}}{% else %}{{product.bid_set.last.price}}{% endif %}€</h5>
+                    <div class="form-group mt-3 mt-md-0 mb-3">
+                        <form class="d-flex" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                                    
+                            <input type="number" class="form-control" name="price" min="{% if product.bid_set.count != 0 %}{{product.bid_set.last.price}}{% else %}{{product.initial_bid}}{% endif %}" step=".01" required>
+                            <button type="submit" class="btn btn-primary">Pay</button>
+                        </form>
+                    </div>
+
+                    {% if product.bid_set.count != 0 %}
+                        <div>
+                            <h5>Bidding history</h5>
+                            {%for bid in product.bid_set.all|dictsortreversed:"created_date"|slice:":5" %}                            
+                                <div class="d-flex justify-content-between">
+                                    <div>{{bid.buyer}}</div>
+                                    <div>{{bid.created_date|date:"d/m/Y H:i:s"}}</div>
+                                    <div>{{bid.price}}€</div>
+                                </div>
+                            {%endfor%}
+                            {% if product.bid_set.count > 5 %}<p class="text-center">...<p>{% endif %}
+                        </div>
+                    {% endif %}                    
+                {% endif %}
+
+            </div>
         </div>
 
-        <div class="carousel-item">
-            <img src="{% static 'media/Logo.png' %}" class="d-block w-100" alt="...">
+        <div>
+            {{product.seller}}
         </div>
-    </div>
+    </main>
 
-    <button class="carousel-control-prev" type="button" data-bs-target="#carousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-    </button>
 
-    <button class="carousel-control-next" type="button" data-bs-target="#carousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-    </button>
-  </div>
+{% endblock %}
+
+{% block js %}
+
+    <script src="{% static 'js/product.js' %}"></script>
 
 {% endblock %}

@@ -1,5 +1,19 @@
 document.getElementById('finished_date').min = new Date(new Date().getTime() + 60 * 60000).toISOString().split(".")[0].slice(0,-3)
 
+// Modify the view when it is a dutch auction
+function show(selected){
+    if(selected == 'dutch'){
+        document.getElementById('show').classList.remove('d-none')
+        document.getElementById('final_bid').required = true
+        $('label[for="initial_bid"]').text('Maximum price')
+    }
+    else{
+        document.getElementById('show').classList.add('d-none')
+        document.getElementById('final_bid').required = false
+        $('label[for="initial_bid"]').text('Floor price')
+    }
+}
+
 // Copy of the FileList that allows modifications
 let dt = new DataTransfer()
 
@@ -34,7 +48,6 @@ function deleteImage() {
 
     // Changes onclicks, hides and displays different elements
     if (dt.files.length == 0) {
-        document.getElementById('image').classList.add('d-flex')
         document.getElementsByClassName('fa-trash')[0].classList.add('d-none') // Hides the delete picture
 
         // Calls to settings again
@@ -74,30 +87,15 @@ function loadCarousel() {
     while (document.getElementsByClassName('carousel-inner')[0].firstChild) document.getElementsByClassName('carousel-inner')[0].firstChild.remove()
 
     for (i = 0; i < dt.files.length; i++) {
-        if (i == 0) {
-            document.getElementsByClassName('carousel-indicators')[0].innerHTML = '<button type="button" data-bs-target="#carousel" data-bs-slide-to="' + i + '" class="active" aria-current="true" aria-label="Slide ' + (i + 1) + '"></button>'
-            document.getElementsByClassName('carousel-inner')[0].innerHTML = '<div class="carousel-item active"><img src="" class="d-block w-100"></div>'
-        }
-
-        else {
-            document.getElementsByClassName('carousel-indicators')[0].innerHTML += '<button type="button" data-bs-target="#carousel" data-bs-slide-to="' + i + '" aria-label="Slide ' + (i + 1) + '"></button>'
-            document.getElementsByClassName('carousel-inner')[0].innerHTML += '<div class="carousel-item"><img src="" class="d-block w-100"></div>'
-        }
-
+        i == 0 ? (document.getElementsByClassName('carousel-indicators')[0].innerHTML = '<button type="button" data-bs-target="#carousel" data-bs-slide-to="' + i + '" class="active" aria-current="true" aria-label="Slide ' + (i + 1) + '"></button>') : (document.getElementsByClassName('carousel-indicators')[0].innerHTML += '<button type="button" data-bs-target="#carousel" data-bs-slide-to="' + i + '" aria-label="Slide ' + (i + 1) + '"></button>')
+        i == 0 ? (document.getElementsByClassName('carousel-inner')[0].innerHTML = '<div class="carousel-item active"><img src="" class="d-block w-100"></div>') : (document.getElementsByClassName('carousel-inner')[0].innerHTML += '<div class="carousel-item"><img src="" class="d-block w-100"></div>')
         document.getElementsByClassName('carousel-item')[i].lastElementChild.src = URL.createObjectURL(dt.files[i])
     }
 
     // Show or hide controls depending quantity of images
-    if (dt.files.length <= 1) {
-        document.getElementsByClassName('carousel-control-prev')[0].classList.add('d-none')
-        document.getElementsByClassName('carousel-control-next')[0].classList.add('d-none')
-        if (dt.files.length == 1) document.getElementsByClassName('carousel-indicators')[0].firstChild.remove()
-    }
-
-    else {
-        document.getElementsByClassName('carousel-control-prev')[0].classList.remove('d-none')
-        document.getElementsByClassName('carousel-control-next')[0].classList.remove('d-none')
-    }
+    dt.files.length <= 1 ? document.getElementsByClassName('carousel-control-prev')[0].classList.add('d-none') : document.getElementsByClassName('carousel-control-prev')[0].classList.remove('d-none')
+    dt.files.length <= 1 ? document.getElementsByClassName('carousel-control-next')[0].classList.add('d-none') : document.getElementsByClassName('carousel-control-next')[0].classList.remove('d-none')
+    if (dt.files.length == 1) document.getElementsByClassName('carousel-indicators')[0].firstChild.remove()
 
     document.getElementById('upload').files = dt.files; // Add files into the input
 }
