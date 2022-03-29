@@ -1,0 +1,121 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block css %}
+
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+    <main class="p-5">   
+        <div class="container d-flex justify-content-center">
+            <div class="card col-lg-6 text-center">
+                <ul class="nav nav-fill">
+                    <li class="nav-item"><a class="nav-link {% if not signin %}active{% endif %}" data-bs-toggle="tab" href="#login">Log in</a></li>
+                    <li class="nav-item"><a class="nav-link {% if signin %}active{% endif %}" data-bs-toggle="tab" href="#signin">Sign in</a></li>
+                </ul>
+
+                <div class="px-5 py-4">                
+                    <div class="tab-content">
+
+                        <div id="login" class="tab-pane fade {% if not signin %}show active{% endif %}">
+                            <h2 class="fw-bold mb-4">Log in</h2>
+                            <form method="POST">
+                                {% csrf_token %}
+
+                                <div class="form-floating mb-4">
+                                    <input type="text" id="username" name="username" class="form-control" {% if username %}value="{{username}}" {%endif%}placeholder="Username" required/>
+                                    <label for="username">Username</label>
+                                </div>
+            
+                                <div class="form-floating mb-4">
+                                    <input type="password" id="password" name="password" class="form-control" {% if password %}value="{{password}}" {%endif%}placeholder="Password" required/>
+                                    <label for="password">Password</label>
+                                    {% if username %}<p class="text-start text-danger">Username and password does not match</p>{% endif %}
+                                </div>
+                
+                                <button type="submit" class="btn btn-primary w-100 mb-4">Log in</button>
+                
+                                {% comment %} <div class="text-center">
+                                    <p>or log in with:</p>
+                                    <button type="button" class="btn mx-1"><i class="fab fa-facebook-f"></i></button>
+                                    <button type="button" class="btn mx-1"><i class="fab fa-google"></i></button>
+                                    <button type="button" class="btn mx-1"><i class="fab fa-twitter"></i></button>
+                                    <button type="button" class="btn mx-1"><i class="fab fa-github"></i></button>
+                                </div> {% endcomment %}
+                            </form>
+                        </div>            
+
+                        <div id="signin" class="tab-pane fade {% if signin %}show active{% endif %}">            
+                            <h2 class="fw-bold mb-4">Sign in</h2>
+                            <form method="POST">
+                                {% csrf_token %}
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <div class="form-floating">
+                                            {% if oldForm %}{% render_field oldForm.first_name|attr:'required' class='form-control' placeholder="First Name" %}{% else %}{% render_field form.first_name|attr:'required' class='form-control' placeholder="First Name" %}{% endif %}
+                                            <label for="first_name">First name</label>
+                                        </div>
+                                    </div>
+                                                    
+                                    <div class="col-md-6 mb-4">
+                                        <div class="form-floating">
+                                            {% if oldForm %}{% render_field oldForm.last_name|attr:'required' class='form-control' placeholder="Last name" %}{% else %}{% render_field form.last_name|attr:'required' class='form-control' placeholder="Last name" %}{% endif %}
+                                            <label for="last_name">Last name</label>
+                                        </div>
+                                    </div>
+                                </div>
+                    
+                                <div class="form-floating mb-4">
+                                    {% if oldForm %}{% render_field oldForm.username class='form-control' placeholder="Username" %}{% else %}{% render_field form.username class='form-control' placeholder="Username" %}{% endif %}
+                                    <label for="username">Username</label>
+                                    {% if 'username' in oldForm.errors %}<p class="text-start text-danger mb-0">A user with that username already exists</p>{% endif %}
+                                </div>
+            
+                                <div class="form-floating mb-4">
+                                    {% if oldForm %}{% render_field oldForm.email|attr:'required' class='form-control' placeholder="name@gmail.com" %}{% else %}{% render_field form.email|attr:'required' class='form-control' placeholder="name@gmail.com" %}{% endif %}
+                                    <label for="email">Email address</label>
+                                    {% if 'email' in oldForm.errors %}<p class="text-start text-danger mb-0">Enter a valid email address</p>{% endif %}
+                                </div>
+                    
+                                <div class="form-floating mb-4">
+                                    {% if oldForm %}{% render_field oldForm.password1 class='form-control' type="password" placeholder="Password" %}{% else %}{% render_field form.password1 class='form-control' type="password" placeholder="Password" %}{% endif %}
+                                    <label for="password1">Password</label>
+                                    {% if 'password2' not in oldForm.errors or not oldForm %}
+                                        <ul class="text-start">
+                                            <li>It can’t be similar to your personal data</li>
+                                            <li>It must contain at least 8 characters</li>
+                                            <li>It can’t be a commonly used password</li>
+                                            <li>It can’t be entirely numeric</li>
+                                        </ul>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-floating mb-4">
+                                    {% if oldForm %}{% render_field oldForm.password2 class='form-control' type="password" placeholder="Password" %}{% else %}{% render_field form.password2 class='form-control' type="password" placeholder="Password" %}{% endif %}
+                                    <label for="password2">Password confirmation</label>
+                                    {% if 'password2' in oldForm.errors %} {% for error in oldForm.password2.errors %}<p class="text-start text-danger mb-0">{{error|escape}}</p>{% endfor %}{% endif %}
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100 mb-4">Sign in</button>
+                
+                                {% comment %} <div class="text-center">
+                                    <p>or sign in with:</p>
+                                    <button type="button" class="btn mx-1"><i class="fab fa-facebook-f"></i></button>
+                                    <button type="button" class="btn mx-1"><i class="fab fa-google"></i></button>
+                                    <button type="button" class="btn mx-1"><i class="fab fa-twitter"></i></button>
+                                    <button type="button" class="btn mx-1"><i class="fab fa-github"></i></button>
+                                </div> {% endcomment %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+{% endblock %}

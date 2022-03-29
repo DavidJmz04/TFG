@@ -1,6 +1,12 @@
 {% extends 'app/base.html' %}
 {% load static %}
 
+{% block css %}
+
+    <link rel="stylesheet" href="{% static 'css/product.css' %}">
+
+{% endblock %}
+
 {% block content %}
     <main class="p-5">
         <div class="d-md-flex justify-content-center">
@@ -39,25 +45,32 @@
                 <p>{{product.description}}</p>
     
                 <h6 class="d-none finished_date">{{product.finished_date|date:"M d, Y H:i:s" }}</h6>
-                <h6 class="countdown"></h6>
+                {% if not product.winner %}<h6 class="countdown"></h6>{% endif %}
 
-                {% if product.type == 'dutch' %}
+                {% if product.type == 'dutch' and not product.winner %}
                     <h6 class="d-none created_date">{{product.created_date|date:"M d, Y H:i:s" }}</h6>
                     <h6 class="d-none initial_bid">{{product.initial_bid }}</h6>
                     <h6 class="d-none final_bid">{{product.final_bid }}</h6>             
                 {% endif %}
 
-                {% if product.type == 'clock' %}
-                    <h5>Current bid: {% if product.bid_set.count == 0 %}{{product.initial_bid}}{% else %}{{product.bid_set.last.price}}{% endif %}€</h5>
+                {% if product.type == 'clock' %}<h5>Current bid: {% if product.bid_set.count == 0 %}{{product.initial_bid}}{% else %}{{product.bid_set.last.price}}{% endif %}€</h5>{% endif %}
+
+                {% if finished %}
+                    <h6 id="winner">{{product.winner}} win the bid for {{product.bid_set.last.price}}€</h6>
+                {% else %}
                     <div class="form-group mt-3 mt-md-0 mb-3">
-                        <form class="d-flex" method="POST" enctype="multipart/form-data">
+                        <form class="d-flex" method="POST">
                             {% csrf_token %}
-                                    
-                            <input type="number" class="form-control" name="price" min="{% if product.bid_set.count != 0 %}{{product.bid_set.last.price}}{% else %}{{product.initial_bid}}{% endif %}" step=".01" required>
+                            <div class="form-floating">        
+                                <input type="number" class="form-control" id="price" name="price" {% if product.type != 'dutch' %} min="{% if product.bid_set.count != 0 and product.type == 'clock' %}{{product.bid_set.last.price}}{% else %}{{product.initial_bid}}{% endif %}" {% else %}readonly{% endif %} step=".01" required>
+                                <label for="price">Price</label>
+                            </div>
                             <button type="submit" class="btn btn-primary">Pay</button>
                         </form>
                     </div>
-
+                {% endif %}
+                
+                {% if product.type == 'clock' %}
                     {% if product.bid_set.count != 0 %}
                         <div>
                             <h5>Bidding history</h5>
@@ -76,11 +89,20 @@
             </div>
         </div>
 
-        <div>
+        <div class="d-flex">
+            {% if user.profile.image %}
+                <div id="profile" class="d-flex bg-transparent">
+                    <img class="w-100 m-auto" src="{{ user.profile.image.url }}"/>
+                </div>
+            {% else %}
+                <div id="profile" class="d-flex align-items-center justify-content-center rounded-circle" >
+                    <h1>{{ user.first_name|slice:"1"|upper }}{{ user.last_name|slice:"1"|upper }}</h1>
+                </div>
+            {% endif %}
+
             {{product.seller}}
         </div>
     </main>
-
 
 {% endblock %}
 

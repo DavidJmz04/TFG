@@ -1,0 +1,22 @@
+/* Image style */
+#image, #add, #preview{
+    width: 200px;
+    height: 200px;
+    background-color: var(--primary);
+    color: var(--secondary);
+}
+
+#add{
+    cursor: pointer;
+}
+
+/* Edit style */
+.fa-pen{
+    color: var(--primary);
+    cursor: pointer;
+}
+
+.fa-times{
+    color: var(--primary);
+    cursor: pointer;
+}

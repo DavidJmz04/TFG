@@ -14,10 +14,13 @@ function countdown(finished_date, index, products= true){
 }
 
 /* Creates a price countdown depending the remaining time */
-function price_countdown(created_date, finished_date, initial_bid, final_bid, index, products= true){
+function price_countdown(created_date, finished_date, initial_bid, final_bid, index){
     now = new Date().getTime()
     diff= finished_date - now
-    
-    if(diff > 0) document.getElementsByClassName('countdown')[index].innerHTML = (!products ? 'Current bid: ' : '') + (initial_bid - (((initial_bid - final_bid) * (100 - ((diff * 100) / (finished_date - created_date)))) / 100).toFixed(2)) + '€'
+    if(diff > 0){
+        price = (initial_bid - (((initial_bid - final_bid) * (100 - ((diff * 100) / (finished_date - created_date)))) / 100)).toFixed(2)
+        document.getElementsByClassName('countdown')[index].innerHTML = 'Current bid: ' + price + '€'
+        if(document.getElementById('price')) document.getElementById('price').value= price
+    }
     else document.getElementsByClassName('countdown')[index].innerHTML = 'Finished'
 }

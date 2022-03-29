@@ -1,7 +1,117 @@
 {% extends 'app/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block css %}
+
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+
+{% endblock %}
 
 {% block content %}
+    <main class="p-5">
+        <form class="d-flex" method='POST' enctype="multipart/form-data">
+            {% csrf_token %}
 
-    <h2>Profile</h2>
+            {% if user.profile.image %}
+                <div id="image" class="d-flex bg-transparent">
+                    <img class="w-100 m-auto" src="{{ user.profile.image.url }}"/>
+                </div>
+            {% else %}
+                <div id="image" class="d-flex align-items-center justify-content-center rounded-circle" >
+                    <h1>{{ user.first_name|slice:"1"|upper }}{{ user.last_name|slice:"1"|upper }}</h1>
+                </div>
+            {% endif %}
+
+            <div id="add" class="d-none d-flex align-items-center justify-content-center rounded-circle" onclick="loadUpload()">
+                <h1><i class="fas fa-plus"></i></h1>
+            </div>
+            
+            <div id="preview" class="d-none d-flex bg-transparent">
+                <img class="w-100 m-auto"/>
+            </div>
+
+            <input type="file" accept="image/*" id="upload" name="image" class="visually-hidden" onchange="showImage()" required>
+
+            <div class="ms-5 me-5">
+                <div class="show">
+                    <h2>{{user.get_full_name}}</h2>
+                    <h3>{{user.email}}</h3>
+                    <h3>{{user.username}}</h3>
+                </div>
+                <div class="show d-none">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <div class="form-floating">
+                                {% if oldForm %}{% render_field oldForm.first_name|attr:'required' class='form-control' placeholder="First Name" %}{% else %}{% render_field form.first_name|attr:'required' class='form-control' placeholder="First Name" %}{% endif %}
+                                <label for="first_name">First name</label>
+                            </div>
+                        </div>
+                                        
+                        <div class="col-md-6 mb-2">
+                            <div class="form-floating">
+                                {% if oldForm %}{% render_field oldForm.last_name|attr:'required' class='form-control' placeholder="Last name" %}{% else %}{% render_field form.last_name|attr:'required' class='form-control' placeholder="Last name" %}{% endif %}
+                                <label for="last_name">Last name</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <div class="form-floating">
+                                {% if oldForm %}{% render_field oldForm.username class='form-control' placeholder="Username" %}{% else %}{% render_field form.username class='form-control' placeholder="Username" %}{% endif %}
+                                <label for="username">Username</label>
+                                {% if 'username' in oldForm.errors %}<p class="text-start text-danger mb-0">A user with that username already exists</p>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <div class="form-floating">
+                                {% if oldForm %}{% render_field oldForm.email|attr:'required' class='form-control' placeholder="name@gmail.com" %}{% else %}{% render_field form.email|attr:'required' class='form-control' placeholder="name@gmail.com" %}{% endif %}
+                                <label for="email">Email address</label>
+                                {% if 'email' in oldForm.errors %}<p class="text-start text-danger mb-0">Enter a valid email address</p>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-2">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {% if oldForm %}{% render_field oldForm.password1 class='form-control' type="password" placeholder="Password" %}{% else %}{% render_field form.password1 class='form-control' type="password" placeholder="Password" %}{% endif %}
+                                <label for="password1">Password</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {% if oldForm %}{% render_field oldForm.password2 class='form-control' type="password" placeholder="Password" %}{% else %}{% render_field form.password2 class='form-control' type="password" placeholder="Password" %}{% endif %}
+                                <label for="password2">Password confirmation</label>
+                            </div>
+                        </div>
+                        
+                        {% if 'password2' in oldForm.errors %}<p class="text-start text-danger mb-0">{% for error in oldForm.password2.errors %}{{error|escape}} {% endfor %}</p>{% else %}<p class="mb-0">Can’t be similar to your personal data / Must contain at least 8 characters / Can’t be entirely numeric</p>{% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Edit</button>
+                </div>
+            </div>
+
+            <i class="fas fa-pen h1" onclick="show()"></i>
+            <i class="fas fa-times h1 d-none" onclick="hide()"></i>
+        </form>
+            
+
+        <p>Pujas ganadas: {{products}}</p>
+        <p>Pujas participadas: {{products_participated}}</p>
+        <p>Ventas: {{sales}}</p>
+
+        <a class="btn btn-primary" href="{% url 'logout' %}">Log out</a>
+    </main>
     
+{% endblock %}
+
+{% block js %}
+
+    <script src="{% static 'js/profile.js' %}"></script>
+
 {% endblock %}

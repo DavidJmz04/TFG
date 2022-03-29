@@ -14,6 +14,27 @@ function show(selected){
     }
 }
 
+// Advice before deleting an image
+function showAlert(){
+    Swal.fire({
+        title: 'Are you sure?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#485B73',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            deleteImage()
+            Swal.fire(
+                'Deleted!',
+                'Your image has been deleted.',
+                'success'
+            )
+        }
+    })
+}
+
 // Copy of the FileList that allows modifications
 let dt = new DataTransfer()
 
@@ -30,7 +51,7 @@ function settings() {
     
     // Calls directly to add element
     document.getElementById('upload').removeAttribute("onchange")
-    document.getElementById('upload').setAttribute("onchange", "addFiles()")
+    document.getElementById('upload').setAttribute("onchange", "addImages()")
     
     //Style things
     document.getElementsByClassName('fa-plus')[0].classList.remove('display-1')
@@ -38,10 +59,25 @@ function settings() {
     document.getElementById('image').classList.remove('d-flex')
     document.getElementById('image').classList.add('no-pointer')
 
-    addFiles() // Create the carousel and add files
+    addImages() // Create the carousel and add files
 }
 
-//TODO: No va cuando queda una imagen
+// Add the image from the carousel and the input
+function addImages() {
+    // Copy the fileList into the dataTransfer
+    for (i = 0; i < document.getElementById('upload').files.length; i++) dt.items.add(document.getElementById('upload').files[i])
+
+    // Delete repeated images
+    for (i = dt.files.length - 1; i >= 1; i--) {
+        for (j = i - 1; j >= 0; j--) {
+            if (dt.files[i] != null && dt.files[i].lastModified == dt.files[j].lastModified && dt.files[i].size == dt.files[j].size && dt.files[i].name == dt.files[j].name && dt.files[i].type == dt.files[j].type) dt.items.remove(i)
+        }
+    }
+
+    loadCarousel() // Reload carousel
+}
+
+// Delete the image from the carousel and the input
 function deleteImage() {
     dt.items.remove(document.getElementsByClassName('active')[0].getAttribute('data-bs-slide-to')) // Delete element active
     loadCarousel() // Reload carousel
@@ -65,20 +101,6 @@ function deleteImage() {
             document.getElementsByClassName('fa-plus')[0].removeAttribute("onclick") // Delete input caller to the add picture
         }, 100)
     }
-}
-
-function addFiles() {
-    // Copy the fileList into the dataTransfer
-    for (i = 0; i < document.getElementById('upload').files.length; i++) dt.items.add(document.getElementById('upload').files[i])
-
-    // Delete repeated images
-    for (i = dt.files.length - 1; i >= 1; i--) {
-        for (j = i - 1; j >= 0; j--) {
-            if (dt.files[i] != null && dt.files[i].lastModified == dt.files[j].lastModified && dt.files[i].size == dt.files[j].size && dt.files[i].name == dt.files[j].name && dt.files[i].type == dt.files[j].type) dt.items.remove(i)
-        }
-    }
-
-    loadCarousel() // Reload carousel
 }
 
 // Creates carousel

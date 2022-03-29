@@ -1,0 +1,32 @@
+body {
+    overflow: hidden;
+}
+
+/* Tab */
+.nav{
+    background-color: var(--primary);
+}
+
+a.active, a.active:hover{
+    border-bottom: 6px solid var(--tertiary);
+}
+
+/* Icons */
+.btn{
+    box-shadow: none !important;
+}
+
+.btn .fab{
+    color: var(--primary);
+    font-size: 30px;
+}
+
+.btn .fab:hover{
+    color: #A3BAD9;
+}
+
+@media (max-width: 769px) {
+    body {
+        overflow: auto;
+    }
+}

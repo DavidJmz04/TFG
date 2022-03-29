@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-    
+
     <main class="p-5">        
         <form class="d-md-flex justify-content-center" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
@@ -16,7 +16,7 @@
             <div id="image" class="d-flex mx-auto mx-md-0 me-md-4 text-end" onclick="loadUpload()">
                 
                 <i class="fas fa-plus m-auto display-1"></i>
-                <i class="fas fa-trash d-none h1" onclick="deleteImage()"></i>
+                <i class="fas fa-trash d-none h1" onclick="showAlert()"></i>
                 <input type="file" accept="image/*" multiple="multiple" id="upload" name="images" class="visually-hidden" onchange="settings()" required>
 
                 <div id="carousel" class="carousel slide" data-bs-interval="false" >
@@ -37,47 +37,47 @@
             </div>
 
             <div>
-                <div class="form-group mt-3 mt-md-0 mb-3">
+                <div class="form-floating mt-3 mt-md-0 mb-3">
+                    <input type="text" class="form-control" id="title" name="title" placeholder="Title" required>
                     <label for="title">Title</label>
-                    <input type="title" class="form-control mt-1" id="title" name="title" required>
                 </div>
       
-                <div class="form-group mb-3">
-                      <label for="description">Description</label>
-                      <textarea class="form-control mt-1" id="description" name="description" rows="2" required></textarea>
+                <div class="form-floating mb-3">
+                    <textarea class="form-control" id="description" name="description" placeholder="Description" required></textarea>
+                    <label for="description">Description</label>
                 </div>
 
-                <div class="form-group mb-3">
-                    <label for="origin">Country</label>
-                    <select class="form-control form-select mt-1" id="origin" name="origin" required>
+                <div class="form-floating mb-3">
+                    <select class="form-control form-select" id="origin" name="origin" required>
                         <option value="indifferent">Indifferent</option>
                         <option value="spain">Spain</option>
                     </select>
+                    <label for="origin">Country</label>
                 </div>
       
-                <div class="form-group mb-3">
-                    <label for="type">Type</label>
-                    <select class="form-control form-select mt-1" id="type" name="type" onchange="show(this.value)" required>
+                <div class="form-floating mb-3">
+                    <select class="form-control form-select" id="type" name="type" onchange="show(this.value)" required>
                         <option value="clock">Clock auctions</option>
                         <option value="dutch">Dutch auctions</option>
                         <option value="sealed">Sealed bid auctions</option>
                     </select>
+                    <label for="type">Type</label>
                 </div>
 
-                <div class="form-group mb-3 d-flex">
-                    <div class="w-100">
-                        <label for="initial_bid">Floor price</label>
+                <div class="mb-3 d-flex">
+                    <div class="form-floating w-100">
                         <input type="number" min="0" class="form-control" id="initial_bid" name="initial_bid" required>
+                        <label for="initial_bid">Floor price</label>
                     </div>
-                    <div class="d-none w-100 ms-2"id="show">
-                        <label for="final_bid">Minimum price</label>
+                    <div class="form-floating d-none w-100 ms-2"id="show">
                         <input type="number" min="0" class="form-control" id="final_bid" name="final_bid">
+                        <label for="final_bid">Minimum price</label>
                     </div>
                 </div>
       
-                <div class="form-group mb-3">
+                <div class="form-floating mb-3">
+                    <input type="datetime-local" min="" class="form-control" id="finished_date" name="finished_date" required>
                     <label for="finished_date">Ending date</label>
-                    <input type="datetime-local" min="" class="form-control mt-1" id="finished_date" name="finished_date" required>
                 </div>
 
                 <div class="text-center">

@@ -11,8 +11,8 @@ for(i= 0 ; i < document.getElementsByClassName('finished_date').length; i++){
         initial_bid = document.getElementsByClassName('initial_bid')[i].textContent
         final_bid = document.getElementsByClassName('final_bid')[i].textContent
         
-        price_countdown(created_date, finished_date, initial_bid, final_bid, i, false)
+        price_countdown(created_date, finished_date, initial_bid, final_bid, i)
         index= i
-        setInterval(price_countdown, 1000 * 60, created_date, finished_date, initial_bid, final_bid, index, false)
+        setInterval(price_countdown, 1000 * 60, created_date, finished_date, initial_bid, final_bid, index)
     }
 }

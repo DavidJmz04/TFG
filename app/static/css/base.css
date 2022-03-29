@@ -18,6 +18,10 @@ HEADER
 }
 
 /* NAVBAR ITEM */
+.nav-item:hover{
+    background-color: #A3BAD9;
+}
+
 .nav-link{
     color: var(--secondary) !important;
     padding-top: 2rem;
@@ -26,7 +30,6 @@ HEADER
 
 .nav-link:hover{
     color: #222F40 !important;
-    background-color: #A3BAD9;
 }
 
 .selected{
@@ -68,6 +71,11 @@ input[type="search"]::-webkit-search-decoration, input[type="search"]::-webkit-s
 .fa-user{
     color: var(--secondary);
     font-size: 40px;
+}
+
+.fa-sign-in-alt{
+    color: var(--secondary);
+    font-size: 30px;
 }
 
 /* HAMBURGUER */
@@ -123,6 +131,30 @@ CAROUSEL
 
 .carousel-control-next-icon {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23485B73'%3e%3cpath d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+
+/* ------------
+BUTTON
+---------------*/
+.btn-primary{
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: var(--secondary);
+    border-radius: 0.5rem;
+    padding: 0.375em 1.5rem;
+}
+
+.btn-primary:hover{
+    color: #222F40 !important;
+    background-color: #A3BAD9 !important;
+    border-color: #A3BAD9 !important;
+}
+
+.btn-primary:focus, .btn-primary:active{
+    box-shadow: none !important;
+    color: var(--secondary) !important;
+    border-color: var(--tertiary) !important;
+    background-color: var(--tertiary) !important;
 }
 
 /* ------------
