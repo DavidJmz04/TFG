@@ -11,28 +11,33 @@
 {% block content %}
     <main class="p-5">        
 
-        <div class="row row-cols-5">
-            {% for product in products %}
-                <a href="{% url 'product' product.id %}">
-                    <figure class="col">
-                        <img class="d-block w-100" src="{{ product.picture_set.first.image.url }}">
-                        <h2>{{ product.title }}</h2>
-                        <h6 class="d-none finished_date">{{product.finished_date|date:"M d, Y H:i" }}</h6>
-                        {% if product.type == 'dutch' %}
-                            <h6 class="d-none created_date">{{product.created_date|date:"M d, Y H:i:s" }}</h6>
-                            <h6 class="d-none initial_bid">{{product.initial_bid }}</h6>
-                            <h6 class="d-none final_bid">{{product.final_bid }}</h6>
-                            <h5 class="countdown"></h5>
-                        {% else %}
-                            <h5>Current bid: {% if product.bid_set.count == 0 %}{{product.initial_bid}}{% else %}{{product.bid_set.last.price}}{% endif %}€</h5>
-                            <h6 class="countdown"></h6>
-                        {% endif %}
-                    </figure>
-                </a>
-            {% endfor %}
-        </div>
-    </main>
-    
+        {% if products|length != 0 %}
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-5">
+                {% for product in products %}
+                    <a href="{% url 'product' product.id %}">
+                        <figure>
+                            <div class="image-container"><div class="image"><img class="d-block w-100" src="{{ product.picture_set.first.image.url }}"></div></div>
+                            <h2>{{ product.title }}</h2>
+                            <h6 class="d-none finished_date">{{product.finished_date|date:"M d, Y H:i" }}</h6>
+                            {% if product.type == 'dutch' %}
+                                <h6 class="d-none created_date">{{product.created_date|date:"M d, Y H:i:s" }}</h6>
+                                <h6 class="d-none initial_bid">{{product.initial_bid }}</h6>
+                                <h6 class="d-none final_bid">{{product.final_bid }}</h6>
+                                <h5 class="countdown mb-4"></h5>
+                            {% else %}
+                                <h5>Current bid: {% if product.bid_set.count == 0 %}{{product.initial_bid}}{% else %}{{product.bid_set.last.price}}{% endif %}€</h5>
+                                <h6 class="countdown mb-4"></h6>
+                            {% endif %}
+                        </figure>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center">
+                <h1>There are no products on sale</h1>
+            </div>
+        {% endif %}
+    </main>   
     
 {% endblock %}
 

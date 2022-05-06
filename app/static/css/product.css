@@ -1,11 +1,7 @@
-/* Image style */
-#profile{
-    width: 200px;
-    height: 200px;
-    background-color: var(--primary);
-    color: var(--secondary);
-}
-
+/* ------------
+PRODUCT
+---------------*/
+/* BUTTON */
 #price{
     border-top-right-radius: 0px;
     border-bottom-right-radius: 0px;
@@ -14,4 +10,45 @@
 .btn{
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
+}
+
+/* BID HISTORY */
+.bid{
+    background-color: var(--secondary);
+    border: 2px solid var(--primary);
+    max-width: 400px;
+}
+
+/* ------------
+PROFILE
+---------------*/
+/* IMAGE */
+#profile-container{
+    max-width: 680px;
+}
+
+#profile{
+    width: 130px;
+    height: 130px;
+    background-color: var(--primary);
+    color: var(--secondary);
+}
+
+/* STARS */
+.fa-star, .fa-star-half-alt{
+    font-size: 30px;
+}
+
+/* ------------
+MEDIAS
+---------------*/
+@media (max-width: 540px) {
+    #profile{
+        width: 80px;
+        height: 80px;
+    }
+
+    .fa-star, .fa-star-half-alt{
+        font-size: 20px;
+    }
 }

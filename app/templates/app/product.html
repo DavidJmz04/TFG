@@ -44,6 +44,8 @@
                 <h2>{{product.title}}</h2>
                 <p>{{product.description}}</p>
     
+                <h5 class="mb-3">{% if product.measure == 'units' %}{{product.quantity|floatformat}}{% else %}{{product.quantity}}{% endif %} {{product.measure}}</h5>
+                
                 <h6 class="d-none finished_date">{{product.finished_date|date:"M d, Y H:i:s" }}</h6>
                 {% if not product.winner %}<h6 class="countdown"></h6>{% endif %}
 
@@ -56,13 +58,13 @@
                 {% if product.type == 'clock' %}<h5>Current bid: {% if product.bid_set.count == 0 %}{{product.initial_bid}}{% else %}{{product.bid_set.last.price}}{% endif %}€</h5>{% endif %}
 
                 {% if finished %}
-                    <h6 id="winner">{{product.winner}} win the bid for {{product.bid_set.last.price}}€</h6>
+                    <h6 class="mb-4" id="winner">{{product.winner}} win the bid for {{product.bid_set.last.price}}€</h6>
                 {% else %}
-                    <div class="form-group mt-3 mt-md-0 mb-3">
+                    <div class="form-group mt-3 mt-md-0 mb-4">
                         <form class="d-flex" method="POST">
                             {% csrf_token %}
                             <div class="form-floating">        
-                                <input type="number" class="form-control" id="price" name="price" {% if product.type != 'dutch' %} min="{% if product.bid_set.count != 0 and product.type == 'clock' %}{{product.bid_set.last.price}}{% else %}{{product.initial_bid}}{% endif %}" {% else %}readonly{% endif %} step=".01" required>
+                                <input type="number" class="form-control" id="price" name="price" {% if product.type != 'dutch' %} value="{% if product.bid_set.count != 0 and product.type == 'clock' %}{{product.bid_set.last.price}}{% else %}{{product.initial_bid}}{% endif %}" min="{% if product.bid_set.count != 0 and product.type == 'clock' %}{{product.bid_set.last.price}}{% else %}{{product.initial_bid}}{% endif %}" {% else %}readonly{% endif %} step=".01" required>
                                 <label for="price">Price</label>
                             </div>
                             <button type="submit" class="btn btn-primary">Pay</button>
@@ -72,8 +74,8 @@
                 
                 {% if product.type == 'clock' %}
                     {% if product.bid_set.count != 0 %}
-                        <div>
-                            <h5>Bidding history</h5>
+                        <div class="bid m-auto mb-4 p-3 text-center">
+                            <h5 class="mb-3">Bidding history</h5>
                             {%for bid in product.bid_set.all|dictsortreversed:"created_date"|slice:":5" %}                            
                                 <div class="d-flex justify-content-between">
                                     <div>{{bid.buyer}}</div>
@@ -81,26 +83,34 @@
                                     <div>{{bid.price}}€</div>
                                 </div>
                             {%endfor%}
-                            {% if product.bid_set.count > 5 %}<p class="text-center">...<p>{% endif %}
+                            {% if product.bid_set.count > 5 %}<p class="text-center mb-0">...</p>{% endif %}
                         </div>
                     {% endif %}                    
                 {% endif %}
-
             </div>
         </div>
 
-        <div class="d-flex">
-            {% if user.profile.image %}
+        <div class="d-flex m-auto" id="profile-container">
+            {% if product.seller.profile.image %}
                 <div id="profile" class="d-flex bg-transparent">
-                    <img class="w-100 m-auto" src="{{ user.profile.image.url }}"/>
+                    <img class="w-100 m-auto rounded-circle" src="{{ product.seller.profile.image.url }}"/>
                 </div>
             {% else %}
                 <div id="profile" class="d-flex align-items-center justify-content-center rounded-circle" >
-                    <h1>{{ user.first_name|slice:"1"|upper }}{{ user.last_name|slice:"1"|upper }}</h1>
+                    <h1>{{ product.seller.first_name|slice:"1"|upper }}{{ product.seller.last_name|slice:"1"|upper }}</h1>
                 </div>
             {% endif %}
-
-            {{product.seller}}
+            
+            <div class="m-auto ms-4">
+                <h5 class="mb-2 mb-sm-4">{{product.seller.get_full_name}}</h5>
+                <div>
+                    <i class="{% if product.seller.profile.stars == 0.5 %}fas fa-star-half-alt{% elif product.seller.profile.stars > 0.5 %}fas fa-star{% else %}far fa-star{% endif%}"></i>
+                    <i class="{% if product.seller.profile.stars == 1.5 %}fas fa-star-half-alt{% elif product.seller.profile.stars > 1.5 %}fas fa-star{% else %}far fa-star{% endif%}"></i>
+                    <i class="{% if product.seller.profile.stars == 2.5 %}fas fa-star-half-alt{% elif product.seller.profile.stars > 2.5 %}fas fa-star{% else %}far fa-star{% endif%}"></i>
+                    <i class="{% if product.seller.profile.stars == 3.5 %}fas fa-star-half-alt{% elif product.seller.profile.stars > 3.5 %}fas fa-star{% else %}far fa-star{% endif%}"></i>
+                    <i class="{% if product.seller.profile.stars == 4.5 %}fas fa-star-half-alt{% elif product.seller.profile.stars > 4.5 %}fas fa-star{% else %}far fa-star{% endif%}"></i>
+                </div>
+            </div>
         </div>
     </main>
 

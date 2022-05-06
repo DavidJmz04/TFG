@@ -4,14 +4,29 @@ document.getElementById('finished_date').min = new Date(new Date().getTime() + 6
 function show(selected){
     if(selected == 'dutch'){
         document.getElementById('show').classList.remove('d-none')
+        document.getElementById('final_bid').removeAttribute("value")
         document.getElementById('final_bid').required = true
         $('label[for="initial_bid"]').text('Maximum price')
     }
     else{
         document.getElementById('show').classList.add('d-none')
+        document.getElementById('final_bid').setAttribute('value',0);
         document.getElementById('final_bid').required = false
         $('label[for="initial_bid"]').text('Floor price')
     }
+}
+
+// Modify the input when it is a unit measure
+function decimals(selected){
+    if(selected == 'units'){
+        document.getElementById('quantity').step = "1"
+        document.getElementById('quantity').value = Math.round(document.getElementById('quantity').value)
+    }
+    else document.getElementById('quantity').step = ".01"
+}
+
+function changeMin(value){
+    if(document.getElementById('type').value == 'dutch') document.getElementById('final_bid').min = value 
 }
 
 // Advice before deleting an image

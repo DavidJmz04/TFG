@@ -6,11 +6,51 @@ from datetime import datetime
 from .models import Product, Bid, Picture
 from .forms import SaleForm, BidForm, UserForm
 
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.exceptions import ParseError
+from .serializers import BidSerializer
+
+class BidViewset(viewsets.ModelViewSet):
+    queryset = Bid.objects.all()
+    serializer_class = BidSerializer
+    http_method_names = ['get', 'post']
+
+    """ Get all bids """
+    """ def list(self, request):
+        #raise MethodNotAllowed("GET")#No permitirlo """
+    
+    """ Get only a bid """
+    def retrieve(self, request, pk=None):
+        print('Entra')
+        return super().retrieve(request)
+
+    """ Post a bid """
+    def create(self, request):
+        product = Product.objects.get(id= request.data.dict()['product'])
+
+        # Add the bid if it is the first one on dutch auctions and if it is the biggest one on clock auctions
+        if (product.type == 'dutch' and product.winner == None) or (product.type == 'clock' and Bid.objects.filter(product = product).filter(price__gte=request.data.dict()['price']).count() == 0):
+            product.winner = request.user
+            product.save()
+            
+        # Add the bid on sealed auctions
+        elif product.type == 'sealed':
+            # Only save the biggest one as the winner
+            if Bid.objects.filter(product = product).filter(price__gte=request.data.dict()['price']).count() == 0:
+                product.winner = request.user
+                product.save()
+
+        else:
+            raise ParseError('Someone made a bigger bid')
+        
+        return super().create(request)
+
 """ Pass 8 products of each type to the view """
 def home(request):
-    clock_products = Product.objects.filter(type= 'clock').filter(finished_date__gt=datetime.now()).order_by('finished_date')[:8]
-    dutch_products = Product.objects.filter(type= 'dutch').filter(finished_date__gt=datetime.now()).filter(winner__isnull=True).order_by('finished_date')[:8]
-    sealed_products = Product.objects.filter(type= 'sealed').filter(finished_date__gt=datetime.now()).order_by('finished_date')[:8]
+    clock_products = Product.objects.filter(type= 'clock').filter(finished_date__gt=datetime.now()).order_by('finished_date')[:5]
+    dutch_products = Product.objects.filter(type= 'dutch').filter(finished_date__gt=datetime.now()).filter(winner__isnull=True).order_by('finished_date')[:5]
+    sealed_products = Product.objects.filter(type= 'sealed').filter(finished_date__gt=datetime.now()).order_by('finished_date')[:5]
     return render(request, 'app/home.html', {'clock_products': clock_products, 'dutch_products': dutch_products, 'sealed_products': sealed_products})
 
 """ Pass products of its type that are not finished to the view """
@@ -36,9 +76,12 @@ def product(request, id):
 
                 product.winner = request.user
                 product.save()
+
+                messages.success(request, 'Bid successfully created')
             
-            # Add the bid always on sealed auctions and only save the biggest one as the winner
+            # Add the bid on sealed auctions
             elif product.type == 'sealed':
+                # only save the biggest one as the winner
                 if Bid.objects.filter(product = product).filter(price__gte=bid.cleaned_data['price']).count() == 0:
                     product.winner = request.user
                     product.save()
@@ -46,6 +89,8 @@ def product(request, id):
                 bid.instance.product = product
                 bid.instance.buyer = request.user
                 bid.save()
+
+                messages.success(request, 'Bid successfully created')
 
             else:
                 messages.warning(request,'Someone made a bigger bid')
@@ -64,17 +109,19 @@ def sale(request):
 
         if product.is_valid():
             product.instance.seller = request.user
-            if 'final_bid' in request.POST: product.instance.final_bid = request.POST['final_bid']
-            product.save()
+            if request.POST['final_bid'] < request.POST['initial_bid']:
+                product.save()
 
-            """ Save the files on the db """
-            for file in request.FILES.getlist("images"):
-                picture = Picture()
-                picture.product = product.instance
-                picture.image = file
-                picture.save()
-            
-            messages.success(request, 'Sale successfully created')
+                """ Save the files on the db """
+                for file in request.FILES.getlist("images"):
+                    picture = Picture()
+                    picture.product = product.instance
+                    picture.image = file
+                    picture.save()
+                
+                messages.success(request, 'Sale successfully created')
+            else:
+                messages.warning(request, 'Minimum price has to be lower than the maximum one')
         else:
             messages.warning(request, 'Something went wrong')
 

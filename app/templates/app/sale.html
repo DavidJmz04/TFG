@@ -37,17 +37,32 @@
             </div>
 
             <div>
-                <div class="form-floating mt-3 mt-md-0 mb-3">
+                <div class="form-floating mt-3 mt-md-0 mb-3 mb-md-2">
                     <input type="text" class="form-control" id="title" name="title" placeholder="Title" required>
                     <label for="title">Title</label>
                 </div>
       
-                <div class="form-floating mb-3">
+                <div class="form-floating mb-3 mb-md-2">
                     <textarea class="form-control" id="description" name="description" placeholder="Description" required></textarea>
                     <label for="description">Description</label>
                 </div>
 
-                <div class="form-floating mb-3">
+                <div class="mb-3 mb-md-2 d-flex">
+                    <div class="form-floating w-100">
+                        <input type="number" min="0" class="form-control" id="quantity" name="quantity" required>
+                        <label for="quantity">Quantity</label>
+                    </div>
+                    <div class="form-floating w-100 ms-2">
+                        <select class="form-control form-select" id="measure" name="measure" onchange="decimals(this.value)" required>
+                            <option value="units">Units</option>
+                            <option value="kg">Kilograms</option>
+                            <option value="l">Liters</option>
+                        </select>
+                        <label for="measure">Measure</label>
+                    </div>
+                </div>
+
+                <div class="form-floating mb-3 mb-md-2">
                     <select class="form-control form-select" id="origin" name="origin" required>
                         <option value="indifferent">Indifferent</option>
                         <option value="spain">Spain</option>
@@ -55,7 +70,7 @@
                     <label for="origin">Country</label>
                 </div>
       
-                <div class="form-floating mb-3">
+                <div class="form-floating mb-3 mb-md-2">
                     <select class="form-control form-select" id="type" name="type" onchange="show(this.value)" required>
                         <option value="clock">Clock auctions</option>
                         <option value="dutch">Dutch auctions</option>
@@ -64,18 +79,18 @@
                     <label for="type">Type</label>
                 </div>
 
-                <div class="mb-3 d-flex">
+                <div class="mb-3 mb-md-2 d-flex">
                     <div class="form-floating w-100">
-                        <input type="number" min="0" class="form-control" id="initial_bid" name="initial_bid" required>
+                        <input type="number" min="0" class="form-control" id="initial_bid" name="initial_bid" onchange="changeMin(this.value)" required>
                         <label for="initial_bid">Floor price</label>
                     </div>
                     <div class="form-floating d-none w-100 ms-2"id="show">
-                        <input type="number" min="0" class="form-control" id="final_bid" name="final_bid">
+                        <input type="number" min="0" class="form-control" id="final_bid" name="final_bid" value="0">
                         <label for="final_bid">Minimum price</label>
                     </div>
                 </div>
       
-                <div class="form-floating mb-3">
+                <div class="form-floating mb-3 mb-md-2">
                     <input type="datetime-local" min="" class="form-control" id="finished_date" name="finished_date" required>
                     <label for="finished_date">Ending date</label>
                 </div>

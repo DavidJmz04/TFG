@@ -4,6 +4,10 @@
     --tertiary: #7E9ABF;
 }
 
+body{
+    color: var(--primary);
+}
+
 /* ------------
 HEADER
 ---------------*/
@@ -63,7 +67,6 @@ input[type="search"]::-webkit-search-decoration, input[type="search"]::-webkit-s
 
 #search{
     background-color: var(--secondary);
-    color: var(--primary);
     border: none;
 }
 
@@ -96,14 +99,15 @@ input[type="search"]::-webkit-search-decoration, input[type="search"]::-webkit-s
 /* ------------
 CAROUSEL
 ---------------*/
+/* IMAGE */
 #image{
     width: 420px;
-    height: 478px;
+    height: 540px;
 }
 
 .carousel-item{
     width: 350px;
-    height: 400px;
+    height: 460px;
     margin-left: 35px;
 }
 
@@ -113,6 +117,7 @@ CAROUSEL
     transform: translate(0, -50%);
 }
 
+/* ARROWS AND BOTTOM INDICATORS */
 .carousel-indicators{
     margin-bottom: -30px;
 }
@@ -155,6 +160,18 @@ BUTTON
     color: var(--secondary) !important;
     border-color: var(--tertiary) !important;
     background-color: var(--tertiary) !important;
+}
+
+/* ------------
+A STYLE
+---------------*/
+a{
+    color: var(--primary);
+    text-decoration: none;
+}
+
+a:hover{
+    color: var(--primary);
 }
 
 /* ------------

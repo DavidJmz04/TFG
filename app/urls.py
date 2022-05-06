@@ -1,7 +1,12 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+
+from rest_framework import routers
+
+router = routers.DefaultRouter()
+router.register('bids', views.BidViewset, basename='bids')
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -11,6 +16,7 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('login/', views.login_signin, name='login'),
     path('logout/', views.user_logout, name='logout'),
+    path('api/', include(router.urls)),
 ]
 
 if settings.DEBUG:

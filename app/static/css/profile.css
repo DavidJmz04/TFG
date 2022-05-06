@@ -1,4 +1,7 @@
-/* Image style */
+/* ------------
+PROFILE
+---------------*/
+/* IMAGE */
 #image, #add, #preview{
     width: 200px;
     height: 200px;
@@ -6,17 +9,16 @@
     color: var(--secondary);
 }
 
+/* ADD */
 #add{
     cursor: pointer;
 }
 
-/* Edit style */
+/* EDIT */
 .fa-pen{
-    color: var(--primary);
     cursor: pointer;
 }
 
 .fa-times{
-    color: var(--primary);
     cursor: pointer;
 }

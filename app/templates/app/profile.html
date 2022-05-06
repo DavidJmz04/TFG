@@ -15,7 +15,7 @@
 
             {% if user.profile.image %}
                 <div id="image" class="d-flex bg-transparent">
-                    <img class="w-100 m-auto" src="{{ user.profile.image.url }}"/>
+                    <img class="w-100 m-auto rounded-circle" src="{{ user.profile.image.url }}"/>
                 </div>
             {% else %}
                 <div id="image" class="d-flex align-items-center justify-content-center rounded-circle" >
@@ -28,7 +28,7 @@
             </div>
             
             <div id="preview" class="d-none d-flex bg-transparent">
-                <img class="w-100 m-auto"/>
+                <img class="w-100 m-auto rounded-circle"/>
             </div>
 
             <input type="file" accept="image/*" id="upload" name="image" class="visually-hidden" onchange="showImage()" required>

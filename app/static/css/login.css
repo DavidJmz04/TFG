@@ -1,8 +1,7 @@
-body {
-    overflow: hidden;
-}
-
-/* Tab */
+/* ------------
+LOGIN
+---------------*/
+/* TAB */
 .nav{
     background-color: var(--primary);
 }
@@ -11,7 +10,12 @@ a.active, a.active:hover{
     border-bottom: 6px solid var(--tertiary);
 }
 
-/* Icons */
+#login-link, #signin-link{
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+}
+
+/* ICONS */
 .btn{
     box-shadow: none !important;
 }
@@ -23,10 +27,4 @@ a.active, a.active:hover{
 
 .btn .fab:hover{
     color: #A3BAD9;
-}
-
-@media (max-width: 769px) {
-    body {
-        overflow: auto;
-    }
 }

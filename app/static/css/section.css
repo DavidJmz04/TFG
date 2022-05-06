@@ -1,8 +1,40 @@
-a{
-    color: var(--primary);
-    text-decoration: none;
+/* ------------
+SECTION
+---------------*/
+/* IMAGE */
+.image-container{
+    position: relative;
+    width: 100%;
+    overflow: hidden;
 }
 
-a:hover{
-    color: var(--primary);
+.image{
+    height: 400px;
+}
+
+.image img{
+    position: absolute;
+    top: 50%;
+    transform: translate(0, -50%);
+}
+
+/* ------------
+MEDIAS
+---------------*/
+@media (max-width: 1500px) {
+    .image {
+        height: 320px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .image {
+        height: 250px;
+    }
+}
+
+@media (max-width: 420px) {
+    .image {
+        height: 180px;
+    }
 }

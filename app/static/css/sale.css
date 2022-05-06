@@ -1,17 +1,18 @@
-/* CONTAINER IMAGE */
+/* ------------
+SALE
+---------------*/
+/* CONTAINER */
 #image{
     cursor: pointer;
     background-color: #F6F6F6;
 }
 
-/* ELEMENTS IMAGE */
+/* ELEMENTS */
 .fa-plus{
-    color: var(--primary);
     cursor: pointer;
 }
 
 .fa-trash{
-    color: var(--primary);
     cursor: pointer;
     margin-left: 10px;
     margin-right: 35px;
@@ -23,14 +24,18 @@
     background-color: transparent !important;
 }
 
-/* ADVICE ALERT */
+/* ALERTS */
 .swal2-styled.swal2-confirm{
     background-color: var(--primary) !important;
     box-shadow: none !important;
     outline: none;
 }
 
-/* CONFIRMATION ALERT */
 .alert{
     padding: 1rem 3rem;
+}
+
+/* TEXTAREA */
+#description{
+    height: 100px;
 }

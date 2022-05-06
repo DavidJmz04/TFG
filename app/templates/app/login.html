@@ -10,12 +10,12 @@
 
 {% block content %}
 
-    <main class="p-5">   
+    <main class="p-5 pb-0">   
         <div class="container d-flex justify-content-center">
-            <div class="card col-lg-6 text-center">
+            <div class="card col-sm-9 col-xl-6 text-center">
                 <ul class="nav nav-fill">
-                    <li class="nav-item"><a class="nav-link {% if not signin %}active{% endif %}" data-bs-toggle="tab" href="#login">Log in</a></li>
-                    <li class="nav-item"><a class="nav-link {% if signin %}active{% endif %}" data-bs-toggle="tab" href="#signin">Sign in</a></li>
+                    <li class="nav-item"><a id="login-link" class="nav-link {% if not signin %}active{% endif %}" data-bs-toggle="tab" href="#login">Log in</a></li>
+                    <li class="nav-item"><a id="signin-link" class="nav-link {% if signin %}active{% endif %}" data-bs-toggle="tab" href="#signin">Sign in</a></li>
                 </ul>
 
                 <div class="px-5 py-4">                

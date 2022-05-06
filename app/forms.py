@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 class SaleForm (forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['title', 'description', 'type', 'initial_bid', 'origin', 'finished_date']
+        fields = ['title', 'description', 'quantity', 'measure', 'origin', 'type', 'initial_bid', 'final_bid', 'finished_date']
 
 class BidForm (forms.ModelForm):
     class Meta:
