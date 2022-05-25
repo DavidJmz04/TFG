@@ -21,7 +21,7 @@ class Product(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     quantity = models.DecimalField(max_digits=8, decimal_places=2)
-    measure = type = models.CharField(max_length=30, choices=MEASURES)
+    measure = models.CharField(max_length=30, choices=MEASURES)
     type = models.CharField(max_length=30, choices=TYPES)
     initial_bid = models.DecimalField(max_digits=8, decimal_places=2)
     final_bid = models.DecimalField(max_digits=8, decimal_places=2, default=0)

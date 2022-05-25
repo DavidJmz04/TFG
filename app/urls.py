@@ -6,7 +6,9 @@ from django.conf.urls.static import static
 from rest_framework import routers
 
 router = routers.DefaultRouter()
+router.register('products', views.ProductViewset, basename='products')
 router.register('bids', views.BidViewset, basename='bids')
+router.register('users', views.UserViewset, basename='users')
 
 urlpatterns = [
     path('', views.home, name='home'),

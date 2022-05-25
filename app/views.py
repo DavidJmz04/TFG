@@ -2,49 +2,70 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render
 from django.contrib import messages
 from datetime import datetime
+from decimal import Decimal
 
 from .models import Product, Bid, Picture
+from django.contrib.auth.models import User
 from .forms import SaleForm, BidForm, UserForm
 
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
-from .serializers import BidSerializer
+from .serializers import BidSerializer, UserSerializer, ProductSerializer
 
+""" Api view for the users """
+class ProductViewset(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    http_method_names = ['get']
+
+""" Api view for the bids """
 class BidViewset(viewsets.ModelViewSet):
     queryset = Bid.objects.all()
     serializer_class = BidSerializer
     http_method_names = ['get', 'post']
 
-    """ Get all bids """
-    """ def list(self, request):
-        #raise MethodNotAllowed("GET")#No permitirlo """
-    
-    """ Get only a bid """
-    def retrieve(self, request, pk=None):
-        print('Entra')
-        return super().retrieve(request)
-
     """ Post a bid """
     def create(self, request):
-        product = Product.objects.get(id= request.data.dict()['product'])
+        product = Product.objects.get(id= request.data['product'])
 
-        # Add the bid if it is the first one on dutch auctions and if it is the biggest one on clock auctions
-        if (product.type == 'dutch' and product.winner == None) or (product.type == 'clock' and Bid.objects.filter(product = product).filter(price__gte=request.data.dict()['price']).count() == 0):
-            product.winner = request.user
-            product.save()
-            
-        # Add the bid on sealed auctions
-        elif product.type == 'sealed':
-            # Only save the biggest one as the winner
-            if Bid.objects.filter(product = product).filter(price__gte=request.data.dict()['price']).count() == 0:
-                product.winner = request.user
+        if product.finished_date.timestamp() > datetime.now().timestamp():
+            # Add the bid if it is the first one on dutch auctions and if it is the biggest one on clock auctions
+            if (product.type == 'dutch' and product.winner == None and request.data['price'] > product.final_bid) or (product.type == 'clock' and Bid.objects.filter(product = product).filter(price__gte=request.data['price']).count() == 0):
+                product.winner = User.objects.get(id= request.data['buyer'])
                 product.save()
+                
+            # Add the bid on sealed auctions
+            elif product.type == 'sealed':
+                # Only save the biggest one as the winner
+                if Bid.objects.filter(product = product).filter(price__gte=request.data['price']).count() == 0:
+                    product.winner = User.objects.get(id= request.data['buyer'])
+                    product.save()
 
-        else:
-            raise ParseError('Someone made a bigger bid')
+            else:
+                raise ParseError('Someone made a bigger bid')
+            
+            return super().create(request)
         
-        return super().create(request)
+        raise ParseError('The auction has been finished')
+
+    """ Get the bigger bid of a product """
+    @action(detail=False, url_path='(?P<product>[^/.]+)')
+    def bigger_bid(self, request, product):
+        p = Product.objects.get(id= product)
+        
+        if p.type == 'sealed':
+            raise ParseError('You cannot know the biggest bid on sealed bid auctions')
+
+        bid = Bid.objects.filter(product= product).order_by('price').reverse()[:1]
+        self.queryset = bid
+        return super().list(request)
+
+""" Api view for the users """
+class UserViewset(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    http_method_names = ['post']
 
 """ Pass 8 products of each type to the view """
 def home(request):
@@ -70,6 +91,10 @@ def product(request, id):
         if bid.is_valid():
             # Add the bid if it is the first one on dutch auctions and if it is the biggest one on clock auctions
             if (product.type == 'dutch' and product.winner == None) or (product.type == 'clock' and Bid.objects.filter(product = product).filter(price__gte=bid.cleaned_data['price']).count() == 0):
+                
+                if product.type == 'dutch' and bid.cleaned_data['price'] > product.final_bid:
+                    bid.instance.price = round(product.initial_bid - (((product.initial_bid - product.final_bid) * Decimal(100 - (((product.finished_date.timestamp() - datetime.now().timestamp() - 7200) * 100) / (product.finished_date.timestamp() - product.created_date.timestamp())))) / 100),2)
+
                 bid.instance.product = product
                 bid.instance.buyer = request.user
                 bid.save()
