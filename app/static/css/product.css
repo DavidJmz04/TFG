@@ -16,7 +16,7 @@ PRODUCT
 .bid{
     background-color: var(--secondary);
     border: 2px solid var(--primary);
-    max-width: 400px;
+    max-width: 500px;
 }
 
 /* ------------

@@ -31,8 +31,11 @@ function hide(){
 }
 
 function showImage(){
-    document.getElementById('preview').lastElementChild.src = URL.createObjectURL(document.getElementById('upload').files[0])
+    document.getElementById('preview').firstElementChild.src = URL.createObjectURL(document.getElementById('upload').files[0])
 
     document.getElementById('preview').classList.remove('d-none')
     document.getElementById('add').classList.add('d-none')
+
+    document.getElementById('preview').classList.add('h-100')
+    document.getElementById('preview').lastElementChild.classList.add('primary')
 }

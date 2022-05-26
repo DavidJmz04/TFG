@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'rest_framework',
     'django_extensions',
+    'mathfilters',
 ]
 
 X_FRAME_OPTIONS ='SAMEORIGIN'

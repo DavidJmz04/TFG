@@ -1,5 +1,6 @@
 {% extends 'app/base.html' %}
 {% load static %}
+{% load mathfilters %}
 
 {% block css %}
 
@@ -59,17 +60,19 @@
 
                 {% if finished %}
                     <h6 class="mb-4" id="winner">{{product.winner}} win the bid for {{product.bid_set.last.price}}€</h6>
-                {% else %}
+                {% elif user.is_authenticated %}
                     <div class="form-group mt-3 mt-md-0 mb-4">
                         <form class="d-flex" method="POST">
                             {% csrf_token %}
                             <div class="form-floating">        
-                                <input type="number" class="form-control" id="price" name="price" {% if product.type != 'dutch' %} value="{% if product.bid_set.count != 0 and product.type == 'clock' %}{{product.bid_set.last.price}}{% else %}{{product.initial_bid}}{% endif %}" min="{% if product.bid_set.count != 0 and product.type == 'clock' %}{{product.bid_set.last.price}}{% else %}{{product.initial_bid}}{% endif %}" {% else %}readonly{% endif %} step=".01" required>
+                                <input type="number" class="form-control" id="price" name="price" {% if product.type != 'dutch' %} value="{% if product.bid_set.count != 0 and product.type == 'clock' %}{{product.bid_set.last.price|addition:"0.01"}}{% else %}{{product.initial_bid}}{% endif %}" min="{% if product.bid_set.count != 0 and product.type == 'clock' %}{{product.bid_set.last.price|addition:"0.01"}}{% else %}{{product.initial_bid}}{% endif %}" {% else %}readonly{% endif %} step=".01" required>
                                 <label for="price">Price</label>
                             </div>
                             <button type="submit" class="btn btn-primary">Pay</button>
                         </form>
                     </div>
+                {% else %}
+                    <a href="{% url 'login' %}"><button class="btn btn-primary rounded mt-4 mt-md-0 mb-4">Login to bid</button></a>
                 {% endif %}
                 
                 {% if product.type == 'clock' %}
@@ -78,8 +81,8 @@
                             <h5 class="mb-3">Bidding history</h5>
                             {%for bid in product.bid_set.all|dictsortreversed:"created_date"|slice:":5" %}                            
                                 <div class="d-flex justify-content-between">
-                                    <div>{{bid.buyer}}</div>
-                                    <div>{{bid.created_date|date:"d/m/Y H:i:s"}}</div>
+                                    <div class="me-md-4">{{bid.buyer}}</div>
+                                    <div class="me-md-4">{{bid.created_date|date:"d/m/Y H:i:s"}}</div>
                                     <div>{{bid.price}}€</div>
                                 </div>
                             {%endfor%}

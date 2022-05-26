@@ -1,10 +1,11 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.contrib import messages
 from datetime import datetime
 from decimal import Decimal
 
-from .models import Product, Bid, Picture
+from .models import Product, Bid, Picture, Profile
 from django.contrib.auth.models import User
 from .forms import SaleForm, BidForm, UserForm
 
@@ -89,6 +90,9 @@ def product(request, id):
     if request.method == 'POST':
         bid = BidForm(data = request.POST)
         if bid.is_valid():
+            # Only allow bidding bigger than the minimum
+            if product.type != 'dutch' and bid.instance.price < product.initial_bid: bid.instance.price = product.initial_bid
+
             # Add the bid if it is the first one on dutch auctions and if it is the biggest one on clock auctions
             if (product.type == 'dutch' and product.winner == None) or (product.type == 'clock' and Bid.objects.filter(product = product).filter(price__gte=bid.cleaned_data['price']).count() == 0):
                 
@@ -128,6 +132,7 @@ def product(request, id):
     return render(request, 'app/product.html', {'product': product, 'finished': finished})
 
 """ Receive the saleForm and the images stored on the db to the view """
+@login_required(login_url='login')
 def sale(request):
     if request.method == 'POST':
         product = SaleForm(data = request.POST)
@@ -153,35 +158,54 @@ def sale(request):
     return render(request, 'app/sale.html')
 
 """  """
+@login_required(login_url='login')
 def profile(request):
     q1 = Product.objects.filter(winner= request.user).filter(type='dutch')
     q2 = Product.objects.filter(winner= request.user).filter(type__in=['clock','sealed'], finished_date__lt=datetime.now())
-    products= q1.union(q2)
+    products = q1.union(q2)
+    min_products = products.count() if products.count() < 6 else 6
 
     products_participated = Product.objects.filter(bid__buyer = request.user).distinct()
+    min_participated = products_participated.count() if products_participated.count() < 6 else 6
+
     sales = Product.objects.filter(seller= request.user)
+    min_sales = sales.count() if sales.count() < 6 else 6
+
 
     # First time on the view
     if request.method != 'POST':
-        return render(request, 'app/profile.html', {'form': UserForm(initial={'first_name': request.user.first_name, 'last_name': request.user.last_name, 'username': request.user.username, 'email': request.user.email}), 'products': products, 'products_participated': products_participated, 'sales': sales})
+        return render(request, 'app/profile.html', {'form': UserForm(initial={'first_name': request.user.first_name, 'last_name': request.user.last_name, 'username': request.user.username, 'email': request.user.email}), 'products': products, 'min_products': min_products,  'products_participated': products_participated, 'min_participated': min_participated, 'sales': sales, 'min_sales': min_sales, 'edit': False})
     
     # Editing user
     else:
-        userForm = UserForm(data = request.POST)
-        if userForm.is_valid():
-            if 'image' in request.POST: userForm.instance.profile.image = request.POST['image']
-            userForm.save()
+        user = UserForm(data = request.POST, instance = request.user)
+        if user.is_valid():
+            
+            user.save()
+
+            if 'image' in request.FILES:
+                if Profile.objects.filter(user= user.instance):
+                    profile = Profile.objects.get(user= user.instance)
+                    profile.image = request.FILES['image']
+                    profile.save()
+                else:
+                    profile = Profile()
+                    profile.user = user.instance
+                    profile.image = request.FILES['image']
+                    profile.save()
+
             logout(request)
-            new_user = authenticate(request, username=userForm.cleaned_data['username'], password=userForm.cleaned_data['password1'])
+            new_user = authenticate(request, username=user.cleaned_data['username'], password=user.cleaned_data['password1'])
             login(request, new_user)
+
             messages.success(request, 'Changes successfully done')
-            return render(request, 'app/profile.html', {'form': userForm, 'products': products, 'products_participated': products_participated, 'sales': sales})
+
+            return render(request, 'app/profile.html', {'form': user, 'products': products, 'min_products': min_products,  'products_participated': products_participated, 'min_participated': min_participated, 'sales': sales, 'min_sales': min_sales, 'edit': False})
         else:
-            return render(request, 'app/profile.html', {'oldForm': userForm, 'products': products, 'products_participated': products_participated, 'sales': sales})
+            return render(request, 'app/profile.html', {'oldForm': user, 'products': products, 'min_products': min_products,  'products_participated': products_participated, 'min_participated': min_participated, 'sales': sales, 'min_sales': min_sales, 'edit': True})
 
 """ Receive the login user or the new user to the view """
 def login_signin(request):  
-    
     # First time on the view
     if request.method != 'POST':
         return render(request, 'app/login.html', {'form': UserForm, 'signin': False})

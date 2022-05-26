@@ -1,6 +1,7 @@
 {% extends 'app/base.html' %}
 {% load static %}
 {% load widget_tweaks %}
+{% load mathfilters %}
 
 {% block css %}
 
@@ -10,36 +11,42 @@
 
 {% block content %}
     <main class="p-5">
-        <form class="d-flex" method='POST' enctype="multipart/form-data">
+        <form class="d-flex row" method='POST' enctype="multipart/form-data">
             {% csrf_token %}
 
-            {% if user.profile.image %}
-                <div id="image" class="d-flex bg-transparent">
-                    <img class="w-100 m-auto rounded-circle" src="{{ user.profile.image.url }}"/>
-                </div>
-            {% else %}
-                <div id="image" class="d-flex align-items-center justify-content-center rounded-circle" >
-                    <h1>{{ user.first_name|slice:"1"|upper }}{{ user.last_name|slice:"1"|upper }}</h1>
-                </div>
-            {% endif %}
+            <div class="col-12 col-sm-6 col-lg-3 d-flex justify-content-center align-items-center mb-4 mb-sm-0">
 
-            <div id="add" class="d-none d-flex align-items-center justify-content-center rounded-circle" onclick="loadUpload()">
-                <h1><i class="fas fa-plus"></i></h1>
+                {% if user.profile.image %}
+                    <div id="image" class="d-flex {% if edit %}d-none{% endif %} bg-transparent">
+                        <img class="w-100 m-auto rounded-circle" src="{{ user.profile.image.url }}"/>
+                    </div>
+                {% else %}
+                    <div id="image" class="d-flex {% if edit %}d-none{% endif %} align-items-center justify-content-center rounded-circle" >
+                        <h1>{{ user.first_name|slice:"1"|upper }}{{ user.last_name|slice:"1"|upper }}</h1>
+                    </div>
+                {% endif %}
+
+                <div id="add" class="{% if not edit %}d-none{% endif %} d-flex align-items-center justify-content-center rounded-circle" onclick="loadUpload()">
+                    <h1><i class="fas fa-plus"></i></h1>
+                </div>
+
+                
+                <div id="preview" class="d-none d-flex bg-transparent">
+                    <img class="w-100 m-auto rounded-circle"/>
+                    <i class="fas fa-plus h1 primary" onclick="loadUpload()"></i>
+                </div>
+
+                <input type="file" accept="image/*" id="upload" name="image" class="visually-hidden" onchange="showImage()">
+
             </div>
-            
-            <div id="preview" class="d-none d-flex bg-transparent">
-                <img class="w-100 m-auto rounded-circle"/>
-            </div>
 
-            <input type="file" accept="image/*" id="upload" name="image" class="visually-hidden" onchange="showImage()" required>
-
-            <div class="ms-5 me-5">
-                <div class="show">
-                    <h2>{{user.get_full_name}}</h2>
-                    <h3>{{user.email}}</h3>
-                    <h3>{{user.username}}</h3>
+            <div class="col-11 col-sm-5 col-lg-8">
+                <div class="show {% if edit %}d-none{% endif %}">
+                    <h2 class="mb-3">{{user.username}}</h2>
+                    <h4 class="mb-1">{{user.get_full_name}}</h4>
+                    <h4>{{user.email}}</h4>
                 </div>
-                <div class="show d-none">
+                <div class="show {% if not edit %}d-none{% endif %}">
                     <div class="row">
                         <div class="col-md-6 mb-2">
                             <div class="form-floating">
@@ -75,14 +82,14 @@
                     </div>
                     
                     <div class="row mb-2">
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-2">
                             <div class="form-floating">
                                 {% if oldForm %}{% render_field oldForm.password1 class='form-control' type="password" placeholder="Password" %}{% else %}{% render_field form.password1 class='form-control' type="password" placeholder="Password" %}{% endif %}
                                 <label for="password1">Password</label>
                             </div>
                         </div>
                         
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-2">
                             <div class="form-floating">
                                 {% if oldForm %}{% render_field oldForm.password2 class='form-control' type="password" placeholder="Password" %}{% else %}{% render_field form.password2 class='form-control' type="password" placeholder="Password" %}{% endif %}
                                 <label for="password2">Password confirmation</label>
@@ -96,16 +103,151 @@
                 </div>
             </div>
 
-            <i class="fas fa-pen h1" onclick="show()"></i>
-            <i class="fas fa-times h1 d-none" onclick="hide()"></i>
+            <div class="col-1">
+                <i class="fas fa-pen h1 {% if edit %}d-none{% endif %}" onclick="show()"></i>
+                <i class="fas fa-times h1 {% if not edit %}d-none{% endif %}" onclick="hide()"></i>
+            </div>
+
         </form>
             
+        <div class="mt-4">
+            <h2>Win auctions</h2>
 
-        <p>Pujas ganadas: {{products}}</p>
-        <p>Pujas participadas: {{products_participated}}</p>
-        <p>Ventas: {{sales}}</p>
+            {% if products.count != 0 %}
 
-        <a class="btn btn-primary" href="{% url 'logout' %}">Log out</a>
+                <div id="carousel_win" class="carousel slide px-5" data-bs-interval="false">
+                    <div class="carousel-inner" role="listbox">
+                        {% for product in products %}
+                            <div {% if forloop.counter0 == 0 %} class="carousel-item active" {% else %} class="carousel-item" {%endif%}>
+        
+                                <div class="col col-md-2">
+                                    <a href="{% url 'product' product.id %}">
+                                        <figure>
+                                            <div class="image-container"><div class="image"><img class="d-block w-100" src="{{ product.picture_set.first.image.url }}"></div></div>
+                                        </figure>
+                                    </a>
+                                </div>
+
+                                {% for prod in products %}
+                                    {% if forloop.counter0 > forloop.parentloop.counter0 and forloop.parentloop.counter0|add:min_products > forloop.counter0 or min_products > products.count|sub:forloop.parentloop.counter0 and min_products|sub:products.count|add:forloop.parentloop.counter0 > forloop.counter0 %}
+                                        <div class="col col-md-2">    
+                                            <a href="{% url 'product' prod.id %}">
+                                                <figure>
+                                                    <div class="image-container"><div class="image"><img class="d-block w-100" src="{{ prod.picture_set.first.image.url }}"></div></div>
+                                                </figure>
+                                            </a>
+                                        </div>                            
+                                    {% endif %}
+                                {% endfor %}
+                                    
+                            </div>
+                        {% endfor %}
+                    </div>
+        
+                    <a class="carousel-control-prev bg-transparent w-aut" href="#carousel_win"role="button" data-bs-slide="prev"><span class="carousel-control-prev-icon {% if products.count == 1 %}d-none{% endif %}{% if products.count <= 6 %}d-md-none{% endif %}" aria-hidden="true"></span></a>
+                    <a class="carousel-control-next bg-transparent w-aut" href="#carousel_win"role="button" data-bs-slide="next"><span class="carousel-control-next-icon {% if products.count == 1 %}d-none{% endif %}{% if products.count <= 6 %}d-md-none{% endif %}" aria-hidden="true"></span></a>
+                </div>  
+
+            {% else %}
+                <h5>No auctions won</h5>
+            {% endif%}              
+        </div>
+
+        <div class="mt-4">
+            <h2>Participated auctions</h2>
+
+            {% if products_participated.count != 0 %}
+
+                <div id="carousel_participated" class="carousel slide px-5" data-bs-interval="false">
+                    <div class="carousel-inner" role="listbox">
+                        {% for product in products_participated %}
+                            <div {% if forloop.counter0 == 0 %} class="carousel-item active" {% else %} class="carousel-item" {%endif%}>
+        
+                                <div class="col col-md-2">
+                                    <a href="{% url 'product' product.id %}">
+                                        <figure>
+                                            <div class="image-container"><div class="image"><img class="d-block w-100" src="{{ product.picture_set.first.image.url }}"></div></div>
+                                        </figure>
+                                    </a>
+                                </div>
+        
+                                {% for prod in products_participated %}                        
+                                    {% if forloop.counter0 > forloop.parentloop.counter0 and forloop.parentloop.counter0|add:min_participated > forloop.counter0 or min_participated > products_participated.count|sub:forloop.parentloop.counter0 and min_participated|sub:products_participated.count|add:forloop.parentloop.counter0 > forloop.counter0 %}
+                                        <div class="col col-md-2">    
+                                            <a href="{% url 'product' prod.id %}">
+                                                <figure>
+                                                    <div class="image-container"><div class="image"><img class="d-block w-100" src="{{ prod.picture_set.first.image.url }}"></div></div>
+                                                </figure>
+                                            </a>
+                                        </div>                            
+                                    {% endif %}
+                                {% endfor %}
+        
+                            </div>
+                        {% endfor %}
+                    </div>
+        
+                    <a class="carousel-control-prev bg-transparent w-aut" href="#carousel_participated"role="button" data-bs-slide="prev"><span class="carousel-control-prev-icon {% if products_participated.count == 1 %}d-none{% endif %}{% if products_participated.count <= 6 %}d-md-none{% endif %}" aria-hidden="true"></span></a>
+                    <a class="carousel-control-next bg-transparent w-aut" href="#carousel_participated"role="button" data-bs-slide="next"><span class="carousel-control-next-icon {% if products_participated.count == 1 %}d-none{% endif %}{% if products_participated.count <= 6 %}d-md-none{% endif %}" aria-hidden="true"></span></a>
+                </div>
+
+            {% else %}
+                <h5>There are no participated auctions</h5>
+            {% endif%}           
+        </div>
+
+        <div class="mt-4">
+            <h2>Sales</h2>
+
+            {% if sales.count != 0 %}
+
+                <div id="carousel_sales" class="carousel slide px-5" data-bs-interval="false">
+                    <div class="carousel-inner" role="listbox">
+                        {% for product in sales %}
+                            <div {% if forloop.counter0 == 0 %} class="carousel-item active" {% else %} class="carousel-item" {%endif%}>
+        
+                                <div class="col col-md-2">
+                                    <a href="{% url 'product' product.id %}">
+                                        <figure>
+                                            <div class="image-container"><div class="image"><img class="d-block w-100" src="{{ product.picture_set.first.image.url }}"></div></div>
+                                        </figure>
+                                    </a>
+                                </div>
+        
+                                {% for prod in sales %}                        
+                                    {% if forloop.counter0 > forloop.parentloop.counter0 and forloop.parentloop.counter0|add:min_sales > forloop.counter0 or min_sales > sales.count|sub:forloop.parentloop.counter0 and min_sales|sub:sales.count|add:forloop.parentloop.counter0 > forloop.counter0 %}
+                                        <div class="col col-md-2">    
+                                            <a href="{% url 'product' prod.id %}">
+                                                <figure>
+                                                    <div class="image-container"><div class="image"><img class="d-block w-100" src="{{ prod.picture_set.first.image.url }}"></div></div>
+                                                </figure>
+                                            </a>
+                                        </div>                            
+                                    {% endif %}
+                                {% endfor %}
+        
+                            </div>
+                        {% endfor %}
+                    </div>
+        
+                    <a class="carousel-control-prev bg-transparent w-aut" href="#carousel_sales"role="button" data-bs-slide="prev"><span class="carousel-control-prev-icon {% if sales.count == 1 %}d-none{% endif %}{% if sales.count <= 6 %}d-md-none{% endif %}" aria-hidden="true"></span></a>
+                    <a class="carousel-control-next bg-transparent w-aut" href="#carousel_sales"role="button" data-bs-slide="next"><span class="carousel-control-next-icon {% if sales.count == 1 %}d-none{% endif %}{% if sales.count <= 6 %}d-md-none{% endif %}" aria-hidden="true"></span></a>
+                </div> 
+                
+                {% else %}
+                    <h5>No sales</h5>
+                {% endif%}
+        </div>
+
+        <a class="btn btn-primary mt-4" href="{% url 'logout' %}">Log out</a>
+
+        
+
+
+
+
+        
+
     </main>
     
 {% endblock %}
