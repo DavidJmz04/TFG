@@ -9,7 +9,7 @@ from .models import Product, Bid, Picture, Profile
 from django.contrib.auth.models import User
 from .forms import SaleForm, BidForm, UserForm
 
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
 from .serializers import BidSerializer, UserSerializer, ProductSerializer
@@ -18,12 +18,14 @@ from .serializers import BidSerializer, UserSerializer, ProductSerializer
 class ProductViewset(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    http_method_names = ['get']
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    http_method_names = ['get', 'post']
 
 """ Api view for the bids """
 class BidViewset(viewsets.ModelViewSet):
     queryset = Bid.objects.all()
     serializer_class = BidSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     http_method_names = ['get', 'post']
 
     """ Post a bid """
@@ -32,12 +34,12 @@ class BidViewset(viewsets.ModelViewSet):
 
         if product.finished_date.timestamp() > datetime.now().timestamp():
             # Add the bid if it is the first one on dutch auctions and if it is the biggest one on clock auctions
-            if (product.type == 'dutch' and product.winner == None and request.data['price'] > product.final_bid) or (product.type == 'clock' and Bid.objects.filter(product = product).filter(price__gte=request.data['price']).count() == 0):
+            if (product.type == 'dutch' and product.winner == None and Decimal(request.data['price']) >= product.final_bid) or (product.type == 'clock' and Bid.objects.filter(product = product).filter(price__gte=request.data['price']).count() == 0 and product.initial_bid <= Decimal(request.data['price'])):
                 product.winner = User.objects.get(id= request.data['buyer'])
                 product.save()
                 
             # Add the bid on sealed auctions
-            elif product.type == 'sealed':
+            elif product.type == 'sealed' and product.initial_bid <= Decimal(request.data['price']):
                 # Only save the biggest one as the winner
                 if Bid.objects.filter(product = product).filter(price__gte=request.data['price']).count() == 0:
                     product.winner = User.objects.get(id= request.data['buyer'])
