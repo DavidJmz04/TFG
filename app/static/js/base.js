@@ -8,7 +8,7 @@ function countdown(finished_date, index, products= true){
         hours = products ? ('0' + Math.floor((finished_date / 3600000 - now / 3600000) % 24)).slice(-2) : Math.floor((finished_date / 3600000 - now / 3600000) % 24)
         minutes = products ? ('0' + Math.floor((finished_date / 60000 - now / 60000) % 60)).slice(-2) : Math.floor((finished_date / 60000 - now / 60000) % 60)
 
-        document.getElementsByClassName('countdown')[index].innerHTML = ((days != 0) ? days + ' days ' : '') + (!products ? hours + ' hours ' + minutes + ' minutes' : hours + ':' + minutes + ':' + ('0' + Math.floor((finished_date / 1000 - now / 1000) % 60)).slice(-2))
+        document.getElementsByClassName('countdown')[index].innerHTML = (days != 0 ? days + (days != 1 ? ' days ' : ' day ') : '') + (!products ? (hours != 0 ? hours + ' hours ' : '') + minutes + ' minutes' : hours + ':' + minutes + ':' + ('0' + Math.floor((finished_date / 1000 - now / 1000) % 60)).slice(-2))
     }
     else document.getElementsByClassName('countdown')[index].innerHTML = 'Finished'
 }

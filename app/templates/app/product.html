@@ -48,7 +48,7 @@
                 <h5 class="mb-3">{% if product.measure == 'units' %}{{product.quantity|floatformat}}{% else %}{{product.quantity}}{% endif %} {{product.measure}}</h5>
                 
                 <h6 class="d-none finished_date">{{product.finished_date|date:"M d, Y H:i:s" }}</h6>
-                {% if not product.winner %}<h6 class="countdown"></h6>{% endif %}
+                {% if not product.winner and product.type == 'dutch' or product.type != 'dutch' %}<h6 class="countdown"></h6>{% endif %}
 
                 {% if product.type == 'dutch' and not product.winner %}
                     <h6 class="d-none created_date">{{product.created_date|date:"M d, Y H:i:s" }}</h6>
@@ -57,7 +57,7 @@
                 {% endif %}
 
                 {% if product.type == 'clock' %}<h5>Current bid: {% if product.bid_set.count == 0 %}{{product.initial_bid}}{% else %}{{product.bid_set.last.price}}{% endif %}€</h5>{% endif %}
-
+                
                 {% if finished %}
                     <h6 class="mb-4" id="winner">{{product.winner}} win the bid for {{product.bid_set.last.price}}€</h6>
                 {% elif user.is_authenticated %}

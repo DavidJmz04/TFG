@@ -1,13 +1,13 @@
 for(i= 0 ; i < document.getElementsByClassName('finished_date').length; i++){
 
-    finished_date= new Date(document.getElementsByClassName('finished_date')[i].textContent).getTime()
+    finished_date= new Date(document.getElementsByClassName('finished_date')[i].textContent).getTime() - (new Date().getTimezoneOffset() * 60 * 1000)
     if(document.getElementsByClassName('created_date')[i] == undefined){
         countdown(finished_date, i, false)
         index= i
         setInterval(countdown, 1000 * 60, finished_date, index, false)
     }
     else{
-        created_date = new Date(document.getElementsByClassName('created_date')[i].textContent).getTime()
+        created_date = new Date(document.getElementsByClassName('created_date')[i].textContent).getTime() - (new Date().getTimezoneOffset() * 60 * 1000)
         initial_bid = document.getElementsByClassName('initial_bid')[i].textContent
         final_bid = document.getElementsByClassName('final_bid')[i].textContent
         

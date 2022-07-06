@@ -6,7 +6,6 @@ from random import random, choice
 """ Spade Agent """
 class BidAgent(Agent):
     async def setup(self):
-        print("Agent starting . . .")
         self.password = ''.join((secrets.choice(string.ascii_letters + string.digits + string.punctuation) for i in range(8)))
         r = requests.post(url='http://localhost:8000/api/users/', headers={'Content-Type': 'application/json'}, data=json.dumps({'username': ''.join(choice(string.ascii_lowercase) for i in range(10)), 'password': self.password}))
         if r.status_code == 201: self.user = r.json()

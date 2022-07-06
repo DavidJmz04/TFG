@@ -5,6 +5,8 @@ from django.contrib import messages
 from datetime import datetime
 from decimal import Decimal
 
+from pytz import utc
+
 from .models import Product, Bid, Picture, Profile
 from django.contrib.auth.models import User
 from .forms import SaleForm, BidForm, UserForm
@@ -72,15 +74,15 @@ class UserViewset(viewsets.ModelViewSet):
 
 """ Pass 8 products of each type to the view """
 def home(request):
-    clock_products = Product.objects.filter(type= 'clock').filter(finished_date__gt=datetime.now()).order_by('finished_date')[:5]
-    dutch_products = Product.objects.filter(type= 'dutch').filter(finished_date__gt=datetime.now()).filter(winner__isnull=True).order_by('finished_date')[:5]
-    sealed_products = Product.objects.filter(type= 'sealed').filter(finished_date__gt=datetime.now()).order_by('finished_date')[:5]
+    clock_products = Product.objects.filter(type= 'clock').filter(finished_date__gt=datetime.utcnow()).order_by('finished_date')[:5]
+    dutch_products = Product.objects.filter(type= 'dutch').filter(finished_date__gt=datetime.utcnow()).filter(winner__isnull=True).order_by('finished_date')[:5]
+    sealed_products = Product.objects.filter(type= 'sealed').filter(finished_date__gt=datetime.utcnow()).order_by('finished_date')[:5]
     return render(request, 'app/home.html', {'clock_products': clock_products, 'dutch_products': dutch_products, 'sealed_products': sealed_products})
 
 """ Pass products of its type that are not finished to the view """
 def section(request, type):
-    if type == 'dutch': products = Product.objects.filter(type= type).filter(finished_date__gt=datetime.now()).filter(winner__isnull=True).order_by('finished_date')
-    else: products = Product.objects.filter(type= type).filter(finished_date__gt=datetime.now()).order_by('finished_date')
+    if type == 'dutch': products = Product.objects.filter(type= type).filter(finished_date__gt=datetime.utcnow()).filter(winner__isnull=True).order_by('finished_date')
+    else: products = Product.objects.filter(type= type).filter(finished_date__gt=datetime.utcnow()).order_by('finished_date')
 
     return render(request, 'app/section.html', {'products': products})
 
@@ -99,7 +101,7 @@ def product(request, id):
             if (product.type == 'dutch' and product.winner == None) or (product.type == 'clock' and Bid.objects.filter(product = product).filter(price__gte=bid.cleaned_data['price']).count() == 0):
                 
                 if product.type == 'dutch' and bid.cleaned_data['price'] > product.final_bid:
-                    bid.instance.price = round(product.initial_bid - (((product.initial_bid - product.final_bid) * Decimal(100 - (((product.finished_date.timestamp() - datetime.now().timestamp() - 7200) * 100) / (product.finished_date.timestamp() - product.created_date.timestamp())))) / 100),2)
+                    bid.instance.price = round(product.initial_bid - (((product.initial_bid - product.final_bid) * Decimal(100 - (((product.finished_date.timestamp() - datetime.utcnow().timestamp()) * 100) / (product.finished_date.timestamp() - product.created_date.timestamp())))) / 100),2)
 
                 bid.instance.product = product
                 bid.instance.buyer = request.user
@@ -141,6 +143,7 @@ def sale(request):
 
         if product.is_valid():
             product.instance.seller = request.user
+            product.instance.finished_date = datetime.utcfromtimestamp(datetime.strptime(request.POST['finished_date'], "%Y-%m-%dT%H:%M").timestamp())
             if request.POST['final_bid'] < request.POST['initial_bid']:
                 product.save()
 
@@ -163,7 +166,7 @@ def sale(request):
 @login_required(login_url='login')
 def profile(request):
     q1 = Product.objects.filter(winner= request.user).filter(type='dutch')
-    q2 = Product.objects.filter(winner= request.user).filter(type__in=['clock','sealed'], finished_date__lt=datetime.now())
+    q2 = Product.objects.filter(winner= request.user).filter(type__in=['clock','sealed'], finished_date__lt=datetime.utcnow())
     products = q1.union(q2)
     min_products = products.count() if products.count() < 6 else 6
 

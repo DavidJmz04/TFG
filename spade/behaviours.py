@@ -16,13 +16,14 @@ class AggressiveBehav(CyclicBehaviour):
 
     async def run(self):
         #Stop the agent if the auction is finished
-        if (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() < datetime.now().timestamp()): self.kill()
+        if (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() < datetime.utcnow().timestamp()): self.kill()
 
         if self.product['type'] == 'sealed':
-            while float(self.product['initial_bid']) >= round(self.max_price * self.aggressiveness, 2): self.aggressiveness = round(self.aggressiveness + 0.01, 2)
-            if self.aggressiveness >= 1: self.kill()
-            r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': round(self.max_price * self.aggressiveness, 2), 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
-            if r.status_code == 201: self.kill()
+            while float(self.product['initial_bid']) > round(self.max_price * self.aggressiveness, 2): self.aggressiveness = round(self.aggressiveness + 0.01, 2)
+            if self.aggressiveness > 1: self.kill()
+            else:
+                r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': round(self.max_price * self.aggressiveness, 2), 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
+                if r.status_code == 201: self.kill()
 
         else:
             # Get the higher bid and buyer if exists
@@ -30,13 +31,16 @@ class AggressiveBehav(CyclicBehaviour):
             self.higher_bid = 0 if len(r.json()) == 0 else float(r.json()[0]['price'])
             self.higher_buyer = 0 if len(r.json()) == 0 else r.json()[0]['buyer']
 
-            if self.product['type'] == 'clock': #and higher_buyer != self.agent.user['id']):
-                while self.higher_bid >= round(self.max_price * self.aggressiveness, 2) or float(self.product['initial_bid']) >= round(self.max_price * self.aggressiveness, 2): self.aggressiveness = round(self.aggressiveness + 0.01, 2)
-                if self.aggressiveness >= 1: self.kill()
-                r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': round(self.max_price * self.aggressiveness, 2), 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
+            if self.product['type'] == 'clock' and self.higher_buyer != self.agent.user['id']:
+                while self.higher_bid >= round(self.max_price * self.aggressiveness, 2) or float(self.product['initial_bid']) > round(self.max_price * self.aggressiveness, 2):
+                    self.aggressiveness = round(self.aggressiveness + 0.01, 2)
+                    if self.aggressiveness > 1: break
+                
+                if self.aggressiveness > 1: self.kill()
+                else: r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': round(self.max_price * self.aggressiveness, 2), 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
 
             elif self.product['type'] == 'dutch':
-                price = round(float(self.product['initial_bid']) - (((float(self.product['initial_bid']) - float(self.product['final_bid'])) * float(100 - (((datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.now().timestamp()) * 100) / (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.strptime(self.product['created_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp())))) / 100),2)
+                price = round(float(self.product['initial_bid']) - (((float(self.product['initial_bid']) - float(self.product['final_bid'])) * float(100 - (((datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.utcnow().timestamp()) * 100) / (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.strptime(self.product['created_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp())))) / 100),2)
                 if self.higher_bid == 0 and price <= round(self.max_price * self.aggressiveness, 2):
                     r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': price, 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
                     if r.status_code == 201: self.kill()
@@ -53,13 +57,14 @@ class ShyBehav(CyclicBehaviour):
 
     async def run(self):
         #Stop the agent if the auction is finished
-        if (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() < datetime.now().timestamp()): self.kill()
+        if (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() < datetime.utcnow().timestamp()): self.kill()
 
         if self.product['type'] == 'sealed':
-            while float(self.product['initial_bid']) >= round(self.max_price * self.shyness, 2): self.shyness = round(self.shyness + 0.01, 2)
-            if self.shyness >= 1: self.kill()
-            r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': round(self.max_price * self.shyness, 2), 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
-            if r.status_code == 201: self.kill()
+            while float(self.product['initial_bid']) > round(self.max_price * self.shyness, 2): self.shyness = round(self.shyness + 0.01, 2)
+            if self.shyness > 1: self.kill()
+            else: 
+                r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': round(self.max_price * self.shyness, 2), 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
+                if r.status_code == 201: self.kill()
 
         else:
             # Get the higher bid and buyer if exists
@@ -67,13 +72,16 @@ class ShyBehav(CyclicBehaviour):
             self.higher_bid = 0 if len(r.json()) == 0 else float(r.json()[0]['price'])
             self.higher_buyer = 0 if len(r.json()) == 0 else r.json()[0]['buyer']
 
-            if self.product['type'] == 'clock': #and higher_buyer != self.agent.user['id']):
-                while self.higher_bid >= round(self.max_price * self.shyness, 2) or float(self.product['initial_bid']) >= round(self.max_price * self.shyness, 2): self.shyness = round(self.shyness + 0.01, 2)
-                if self.shyness >= 1: self.kill()
-                r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': round(self.max_price * self.shyness, 2), 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
+            if self.product['type'] == 'clock' and self.higher_buyer != self.agent.user['id']:
+                while self.higher_bid >= round(self.max_price * self.shyness, 2) or float(self.product['initial_bid']) > round(self.max_price * self.shyness, 2):
+                    self.shyness = round(self.shyness + 0.01, 2)
+                    if self.shyness > 1: break
+
+                if self.shyness > 1: self.kill()
+                else: r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': round(self.max_price * self.shyness, 2), 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
 
             elif self.product['type'] == 'dutch':
-                price = round(float(self.product['initial_bid']) - (((float(self.product['initial_bid']) - float(self.product['final_bid'])) * float(100 - (((datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.now().timestamp()) * 100) / (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.strptime(self.product['created_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp())))) / 100),2)
+                price = round(float(self.product['initial_bid']) - (((float(self.product['initial_bid']) - float(self.product['final_bid'])) * float(100 - (((datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.utcnow().timestamp()) * 100) / (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.strptime(self.product['created_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp())))) / 100),2)
                 if self.higher_bid == 0 and price <= round(self.max_price * self.shyness, 2):
                     r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': price, 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
                     if r.status_code == 201: self.kill()
@@ -95,13 +103,13 @@ class ArbitraryBehav(CyclicBehaviour):
         
     async def run(self):
         #Stop the agent if the auction is finishedn
-        if (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() < datetime.now().timestamp()): self.kill()
+        if (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() < datetime.utcnow().timestamp()): self.kill()
 
         if self.product['type'] == 'sealed':
-            while float(self.product['initial_bid']) >= self.price: self.price = self.array[random.randint(0, len(self.array)-1)]
-            if self.array.index(self.price) == len(self.array) - 1: self.kill()
-            r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': self.price, 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
-            if r.status_code == 201: self.kill()
+            while float(self.product['initial_bid']) > self.price: self.price = self.array[random.randint(0, len(self.array)-1)]
+            if self.array.index(self.price) < len(self.array):
+                r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': self.price, 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
+                if r.status_code == 201: self.kill()
 
         else:
             # Get the higher bid and buyer if exists
@@ -109,13 +117,18 @@ class ArbitraryBehav(CyclicBehaviour):
             self.higher_bid = 0 if len(r.json()) == 0 else float(r.json()[0]['price'])
             self.higher_buyer = 0 if len(r.json()) == 0 else r.json()[0]['buyer']
                 
-            if self.product['type'] == 'clock': #and self.higher_buyer != self.agent.user['id']:
-                while self.higher_bid >= self.price or float(self.product['initial_bid']) >= self.price: self.price = self.array[random.randint(self.array.index(self.price), len(self.array)-1)]
-                if self.array.index(self.price) == len(self.array) - 1: self.kill()
-                r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': self.price, 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
+            if self.product['type'] == 'clock' and self.higher_buyer != self.agent.user['id']:
+                while self.higher_bid >= self.price or float(self.product['initial_bid']) > self.price: 
+                    self.price = self.array[random.randint(self.array.index(self.price), len(self.array)-1)]
+                    if self.array.index(self.price) == len(self.array) - 1: break
+                
+                if self.array.index(self.price) == len(self.array) - 1:                    
+                    r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': self.price, 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
+                    self.kill()
+                else: r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': self.price, 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
 
             elif self.product['type'] == 'dutch':
-                price = round(float(self.product['initial_bid']) - (((float(self.product['initial_bid']) - float(self.product['final_bid'])) * float(100 - (((datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.now().timestamp()) * 100) / (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.strptime(self.product['created_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp())))) / 100),2)
+                price = round(float(self.product['initial_bid']) - (((float(self.product['initial_bid']) - float(self.product['final_bid'])) * float(100 - (((datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.utcnow().timestamp()) * 100) / (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.strptime(self.product['created_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp())))) / 100),2)
                 if self.higher_bid == 0 and price <= self.price:
                     r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': price, 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
                     if r.status_code == 201: self.kill()
@@ -124,7 +137,7 @@ class ArbitraryBehav(CyclicBehaviour):
 
 """ A bigger bid than others on sealed auctions, one big bid behaviour on clock auctions and a bigger bid than others on dutch auctions """
 class KnownBehav(CyclicBehaviour):
-    def __init__(self, product, max_price, risk, others_range):
+    def __init__(self, product, max_price, others_range, risk):
         self.product = product
         self.max_price = max_price
         self.risk = 1 - risk
@@ -139,13 +152,14 @@ class KnownBehav(CyclicBehaviour):
 
     async def run(self):
         #Stop the agent if the auction is finished
-        if (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() < datetime.now().timestamp()): self.kill()
+        if (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() < datetime.utcnow().timestamp()): self.kill()
 
         if self.product['type'] == 'sealed':
-            while float(self.product['initial_bid']) >= self.price: self.price = round(self.price + 0.01, 2)
+            while float(self.product['initial_bid']) > self.price: self.price = round(self.price + 0.01, 2)
             if self.price >= self.max_price: self.kill()
-            r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': self.price, 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
-            if r.status_code == 201: self.kill()
+            else: 
+                r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': self.price, 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
+                if r.status_code == 201: self.kill()
 
         else:
             # Get the higher bid and buyer if exists
@@ -153,13 +167,16 @@ class KnownBehav(CyclicBehaviour):
             self.higher_bid = 0 if len(r.json()) == 0 else float(r.json()[0]['price'])
             self.higher_buyer = 0 if len(r.json()) == 0 else r.json()[0]['buyer']
                 
-            if self.product['type'] == 'clock': #and self.higher_buyer != self.agent.user['id']:
-                while self.higher_bid >= self.price or float(self.product['initial_bid']) >= self.price: self.price = round(self.price + 0.01, 2)
-                if self.price >= self.max_price: self.kill()
-                r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': self.price, 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password)) 
+            if self.product['type'] == 'clock' and self.higher_buyer != self.agent.user['id']:
+                while self.higher_bid >= self.price or float(self.product['initial_bid']) > self.price:
+                    self.price = round(self.price + 0.01, 2)
+                    if self.price > self.max_price: break
+                    
+                if self.price > self.max_price: self.kill()
+                else: r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': self.price, 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password)) 
 
             elif self.product['type'] == 'dutch':
-                price = round(float(self.product['initial_bid']) - (((float(self.product['initial_bid']) - float(self.product['final_bid'])) * float(100 - (((datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.now().timestamp()) * 100) / (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.strptime(self.product['created_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp())))) / 100),2)
+                price = round(float(self.product['initial_bid']) - (((float(self.product['initial_bid']) - float(self.product['final_bid'])) * float(100 - (((datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.utcnow().timestamp()) * 100) / (datetime.strptime(self.product['finished_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp() - datetime.strptime(self.product['created_date'], "%Y-%m-%dT%H:%M:%SZ").timestamp())))) / 100),2)
                 if self.higher_bid == 0 and price <= self.price:
                     r = requests.post(url='http://localhost:8000/api/bids/', headers={'Content-Type': 'application/json'}, data=json.dumps({'price': price, 'product': self.product['id'], 'buyer': self.agent.user['id']}), auth=(self.agent.user['username'], self.agent.password))
                     if r.status_code == 201: self.kill()

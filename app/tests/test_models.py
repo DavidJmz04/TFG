@@ -46,6 +46,3 @@ class ProductTestCase(TestCase):
         product = Product.objects.get(title= "Test")
         self.assertEqual(product.bid_set.first().price, 10)
         self.assertEqual(product.bid_set.count(), 2)
-
-
-    
